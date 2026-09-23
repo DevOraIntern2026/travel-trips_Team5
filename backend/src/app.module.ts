@@ -27,7 +27,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     }),
     ThrottlerModule.forRoot([{
       ttl: 60000, // 60 seconds
-      limit: 10, // limit each IP to 100 requests per ttl
+      limit: 10, // limit each IP to 10 requests per ttl
     }]),
   ],
   controllers: [AppController],
