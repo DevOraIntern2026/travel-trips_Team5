@@ -38,7 +38,7 @@ async function bootstrap() {
   // Use the ConfigService to read variables from your .env file
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') ?? 3000;
-  
+
   await app.listen(port);
 }
 await bootstrap();

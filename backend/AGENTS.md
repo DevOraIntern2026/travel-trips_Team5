@@ -80,6 +80,11 @@ Copy `.env.example` to `.env`. Required vars (see `src/config/env.validation.ts`
    `HttpException` family + exception filters (no raw `throw new Error()` to clients);
    Guards for auth, `ThrottlerGuard` is already global; avoid circular module deps
    (`forwardRef` is a smell — restructure first).
+   Auth seam: `src/auth/` holds `@Public()`, `@Roles('Admin'|'Operator'|'Customer')`
+   and `RolesGuard` (deny-by-default, reads `request.user.role`). `RolesGuard` is
+   implemented + unit-tested but NOT registered globally yet — Backend 1 (auth) will
+   register it as `APP_GUARD` with the JWT guard that populates `request.user`.
+   Until then, `@Roles` metadata documents intent and management routes stay public.
 5. **TypeScript strictness.** `strict: true`, `strictPropertyInitialization: false`.
    No `any` leakage, no unchecked `as` casts (validate at boundaries), exhaustive
    switches over discriminated unions, `no-floating-promises` is `warn` — always

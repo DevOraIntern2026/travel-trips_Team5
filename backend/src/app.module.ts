@@ -4,6 +4,7 @@ import { envValidationSchema } from './config/env.validation.js';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { DestinationsModule } from './destinations/destinations.module.js';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -25,10 +26,13 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
         serviceId: 'backend',
       }),
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000, // 60 seconds
-      limit: 10, // limit each IP to 10 requests per ttl
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 60 seconds
+        limit: 10, // limit each IP to 10 requests per ttl
+      },
+    ]),
+    DestinationsModule,
   ],
   controllers: [AppController],
   providers: [

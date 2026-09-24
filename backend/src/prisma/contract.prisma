@@ -19,3 +19,14 @@ model Post {
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
 }
+
+model Destination {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  city        String
+  country     String
+  isActive    Boolean  @default(true)
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+}
