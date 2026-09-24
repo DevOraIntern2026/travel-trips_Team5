@@ -13,7 +13,9 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator.js';
 import { Roles } from '../auth/roles.decorator.js';
 import { CreateTripDto } from './dto/create-trip.dto.js';
+import { TripFilterQueryDto } from './dto/trip-filter-query.dto.js';
 import { TripQueryDto } from './dto/trip-query.dto.js';
+import { TripSearchQueryDto } from './dto/trip-search-query.dto.js';
 import { UpdateTripDto } from './dto/update-trip.dto.js';
 import { TripsService } from './trips.service.js';
 
@@ -31,9 +33,26 @@ export class TripsController {
     return this.trips.findAll(query);
   }
 
-  // NOTE: future GET /trips/search and /trips/filter routes (§5.6-7, §8)
-  // must be declared ABOVE @Get(':tripId'), otherwise 'search'/'filter'
-  // would be parsed as a tripId and rejected with 400.
+  // NOTE: /trips/search and /trips/filter must stay ABOVE @Get(':tripId'),
+  // otherwise 'search'/'filter' would be parsed as a tripId and rejected.
+  @Get('search')
+  @Public()
+  @ApiOperation({ summary: 'Search trips by name, text and destination' })
+  @ApiResponse({ status: 200, description: 'Paginated matching trips.' })
+  @ApiResponse({ status: 400, description: 'Invalid query parameters.' })
+  search(@Query() query: TripSearchQueryDto) {
+    return this.trips.searchTrips({ ...query, text: query.q });
+  }
+
+  @Get('filter')
+  @Public()
+  @ApiOperation({ summary: 'Filter trips by criteria' })
+  @ApiResponse({ status: 200, description: 'Paginated matching trips.' })
+  @ApiResponse({ status: 400, description: 'Invalid query parameters.' })
+  filter(@Query() query: TripFilterQueryDto) {
+    return this.trips.searchTrips(query);
+  }
+
   @Get(':tripId')
   @Public()
   @ApiOperation({ summary: 'Get an active trip by id (with destination)' })

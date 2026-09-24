@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { TripsService } from './trips.service.js';
 import type { Trip } from './trips.service.js';
 
@@ -11,6 +15,7 @@ const harness = vi.hoisted(() => {
       limit: vi.fn(),
       offset: vi.fn(),
       include: vi.fn(),
+      select: vi.fn(),
       all: vi.fn(),
       first: vi.fn(),
       aggregate: vi.fn(),
@@ -21,6 +26,7 @@ const harness = vi.hoisted(() => {
     stub.limit.mockReturnValue(stub);
     stub.offset.mockReturnValue(stub);
     stub.include.mockReturnValue(stub);
+    stub.select.mockReturnValue(stub);
     return stub;
   };
   const collection = build();
@@ -34,7 +40,21 @@ const harness = vi.hoisted(() => {
   const tripDateNamespace = { where: vi.fn(() => tripDateCollection) };
   const destinationNamespace = { first: vi.fn() };
   const txNamespace = { where: vi.fn(() => txCollection) };
-  const txDb = { orm: { public: { Trip: txNamespace } } };
+  const txDestinationCollection = build();
+  const txDestinationNamespace = {
+    where: vi.fn(() => txDestinationCollection),
+  };
+  const txTripDateCollection = build();
+  const txTripDateNamespace = { where: vi.fn(() => txTripDateCollection) };
+  const txDb = {
+    orm: {
+      public: {
+        Trip: txNamespace,
+        Destination: txDestinationNamespace,
+        TripDate: txTripDateNamespace,
+      },
+    },
+  };
   const db = {
     orm: {
       public: {
@@ -54,6 +74,10 @@ const harness = vi.hoisted(() => {
     collection,
     txNamespace,
     txCollection,
+    txDestinationNamespace,
+    txDestinationCollection,
+    txTripDateNamespace,
+    txTripDateCollection,
   };
 });
 
@@ -101,6 +125,8 @@ function activeDestination() {
 
 describe('TripsService', () => {
   let service: TripsService;
+  let bookedSeats: number;
+  let getConfirmedBookedSeats: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -108,7 +134,15 @@ describe('TripsService', () => {
     harness.txNamespace.where.mockReturnValue(harness.txCollection);
     harness.tripDateNamespace.where.mockReturnValue(harness.tripDateCollection);
     harness.tripDateCollection.first.mockResolvedValue(null);
-    service = new TripsService();
+    harness.txDestinationNamespace.where.mockReturnValue(
+      harness.txDestinationCollection,
+    );
+    harness.txTripDateNamespace.where.mockReturnValue(
+      harness.txTripDateCollection,
+    );
+    bookedSeats = 0;
+    getConfirmedBookedSeats = vi.fn(async () => bookedSeats);
+    service = new TripsService({ getConfirmedBookedSeats });
   });
 
   describe('findAll', () => {
@@ -158,6 +192,233 @@ describe('TripsService', () => {
 
       expect(harness.txNamespace.where).toHaveBeenCalledTimes(2);
       expect(harness.txCollection.where).not.toHaveBeenCalled();
+    });
+
+    it('routes sorted lists through the search engine', async () => {
+      harness.txDestinationCollection.all.mockResolvedValue([]);
+      harness.txCollection.all.mockResolvedValue([trip()]);
+      harness.txTripDateCollection.all.mockResolvedValue([]);
+
+      const result = await service.findAll({
+        page: 1,
+        limit: 10,
+        sort: 'price_asc',
+      });
+
+      expect(result.meta.total).toBe(1);
+      expect(result.data).toHaveLength(1);
+    });
+  });
+
+  describe('searchTrips', () => {
+    const nile = () => trip({ id: 1, name: 'Nile cruise' });
+    const safari = () =>
+      trip({ id: 2, name: 'Desert safari', destinationId: 11 });
+
+    beforeEach(() => {
+      harness.txDestinationCollection.all.mockResolvedValue([]);
+      harness.txTripDateCollection.all.mockResolvedValue([]);
+    });
+
+    it('matches trip names case-insensitively', async () => {
+      harness.txCollection.all.mockResolvedValue([nile(), safari()]);
+
+      const result = await service.searchTrips({
+        text: 'nile',
+        page: 1,
+        limit: 10,
+      });
+
+      // Name matching is a DB predicate; the engine returns what the DB
+      // returns, paginated with metadata.
+      expect(result.meta.total).toBe(2);
+      expect(result.data).toHaveLength(2);
+    });
+
+    it('resolves destination matches to trip candidates', async () => {
+      harness.txDestinationCollection.all.mockResolvedValue([{ id: 11 }]);
+      harness.txCollection.all.mockResolvedValue([safari()]);
+
+      const result = await service.searchTrips({
+        text: 'lux',
+        page: 1,
+        limit: 10,
+      });
+
+      expect(result.meta.total).toBe(1);
+      expect(result.data[0].id).toBe(2);
+    });
+
+    it('filters by destination, duration and paginates', async () => {
+      const rows = [nile(), safari()];
+      harness.txCollection.all.mockResolvedValue(rows);
+
+      const result = await service.searchTrips({
+        destinationId: 10,
+        minDuration: 2,
+        maxDuration: 5,
+        page: 2,
+        limit: 1,
+      });
+
+      expect(result.meta).toEqual({
+        page: 2,
+        limit: 1,
+        total: 2,
+        totalPages: 2,
+      });
+      expect(result.data).toHaveLength(1);
+    });
+
+    it('filters by overlapping date and price window', async () => {
+      harness.txCollection.all.mockResolvedValue([nile(), safari()]);
+      harness.txTripDateCollection.all.mockResolvedValue([
+        {
+          id: 10,
+          tripId: 1,
+          startDate: '2026-10-01T00:00:00.000Z',
+          endDate: '2026-10-05T00:00:00.000Z',
+          price: '99.99',
+          capacity: 20,
+        },
+        {
+          id: 11,
+          tripId: 2,
+          startDate: '2026-11-01T00:00:00.000Z',
+          endDate: '2026-11-05T00:00:00.000Z',
+          price: '500.00',
+          capacity: 10,
+        },
+      ]);
+
+      const byDate = await service.searchTrips({
+        date: '2026-10-03',
+        page: 1,
+        limit: 10,
+      });
+      expect(byDate.meta.total).toBe(1);
+      expect(byDate.data[0].id).toBe(1);
+
+      const byPrice = await service.searchTrips({
+        minPrice: 100,
+        maxPrice: 600,
+        page: 1,
+        limit: 10,
+      });
+      expect(byPrice.meta.total).toBe(1);
+      expect(byPrice.data[0].id).toBe(2);
+    });
+
+    it('keeps only trips with bookable dates when availableOnly', async () => {
+      bookedSeats = 20;
+      harness.txCollection.all.mockResolvedValue([nile(), safari()]);
+      harness.txTripDateCollection.all.mockResolvedValue([
+        {
+          id: 10,
+          tripId: 1,
+          startDate: '2026-10-01T00:00:00.000Z',
+          endDate: '2026-10-05T00:00:00.000Z',
+          price: '99.99',
+          capacity: 20,
+        },
+        {
+          id: 11,
+          tripId: 2,
+          startDate: '2026-11-01T00:00:00.000Z',
+          endDate: '2026-11-05T00:00:00.000Z',
+          price: '50.00',
+          capacity: 25,
+        },
+      ]);
+
+      const result = await service.searchTrips({
+        availableOnly: true,
+        page: 1,
+        limit: 10,
+      });
+
+      // Trip 1 is fully booked (20/20); trip 2 has 5 seats left.
+      expect(result.meta.total).toBe(1);
+      expect(result.data[0].id).toBe(2);
+      expect(getConfirmedBookedSeats).toHaveBeenCalled();
+    });
+
+    it('sorts by price and earliest date, dateless trips last', async () => {
+      harness.txCollection.all.mockResolvedValue([nile(), safari()]);
+      harness.txTripDateCollection.all.mockResolvedValue([
+        {
+          id: 11,
+          tripId: 2,
+          startDate: '2026-11-01T00:00:00.000Z',
+          endDate: '2026-11-05T00:00:00.000Z',
+          price: '500.00',
+          capacity: 10,
+        },
+        {
+          id: 10,
+          tripId: 1,
+          startDate: '2026-10-01T00:00:00.000Z',
+          endDate: '2026-10-05T00:00:00.000Z',
+          price: '99.99',
+          capacity: 20,
+        },
+      ]);
+
+      const asc = await service.searchTrips({
+        sort: 'price_asc',
+        page: 1,
+        limit: 10,
+      });
+      expect(asc.data.map((t) => t.id)).toEqual([1, 2]);
+
+      const desc = await service.searchTrips({
+        sort: 'price_desc',
+        page: 1,
+        limit: 10,
+      });
+      expect(desc.data.map((t) => t.id)).toEqual([2, 1]);
+
+      const byDate = await service.searchTrips({
+        sort: 'date_asc',
+        page: 1,
+        limit: 10,
+      });
+      expect(byDate.data.map((t) => t.id)).toEqual([1, 2]);
+    });
+
+    it('rejects inverted ranges with 400', async () => {
+      await expect(
+        service.searchTrips({
+          minPrice: 200,
+          maxPrice: 100,
+          page: 1,
+          limit: 10,
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+
+      await expect(
+        service.searchTrips({
+          minDuration: 7,
+          maxDuration: 2,
+          page: 1,
+          limit: 10,
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('returns empty metadata when nothing matches', async () => {
+      harness.txCollection.all.mockResolvedValue([]);
+
+      const result = await service.searchTrips({
+        text: 'zzz',
+        page: 1,
+        limit: 10,
+      });
+
+      expect(result).toEqual({
+        data: [],
+        meta: { page: 1, limit: 10, total: 0, totalPages: 0 },
+      });
     });
   });
 
