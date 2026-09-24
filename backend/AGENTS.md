@@ -80,8 +80,8 @@ Copy `.env.example` to `.env`. Required vars (see `src/config/env.validation.ts`
    `HttpException` family + exception filters (no raw `throw new Error()` to clients);
    Guards for auth, `ThrottlerGuard` is already global; avoid circular module deps
    (`forwardRef` is a smell — restructure first).
-   Auth seam: `src/auth/` holds `@Public()`, `@Roles('Admin'|'Operator'|'Customer')`
-   and `RolesGuard` (deny-by-default, reads `request.user.role`). Since the
+   Auth seam: `src/auth/` holds decorators (`decorators/`), guards (`guards/`),
+   `@Roles('Admin'|'Operator'|'Customer')` and `RolesGuard` (deny-by-default, reads `request.user.role`). Since the
    auth feature, `JwtAuthGuard` + `RolesGuard` are registered globally as
    `APP_GUARD` (authenticate first, then authorize): every non-`@Public()`
    route requires a valid JWT, `@Roles()` routes additionally require the

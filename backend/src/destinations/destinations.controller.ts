@@ -10,8 +10,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public } from '../auth/public.decorator.js';
-import { Roles } from '../auth/roles.decorator.js';
+import { Public } from '../auth/decorators/public.decorator.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
 import { DestinationsService } from './destinations.service.js';
 import { CreateDestinationDto } from './dto/create-destination.dto.js';
 import { DestinationQueryDto } from './dto/destination-query.dto.js';

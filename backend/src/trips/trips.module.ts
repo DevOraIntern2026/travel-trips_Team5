@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RolesGuard } from '../auth/roles.guard.js';
+import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { BOOKING_SEATS_PROVIDER } from '../bookings/booking-seats.port.js';
 import { NoopBookingSeatsProvider } from '../bookings/noop-booking-seats.provider.js';
 import { AdminTripsController } from './admin-trips.controller.js';

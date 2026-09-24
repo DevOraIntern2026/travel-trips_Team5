@@ -1,4 +1,4 @@
-import type { UserRole } from './roles.decorator.js';
+import type { UserRole } from './decorators/roles.decorator.js';
 
 /** Database role values are lowercase; the app vocabulary is PascalCase. */
 export type DbRole = 'admin' | 'operator' | 'customer';

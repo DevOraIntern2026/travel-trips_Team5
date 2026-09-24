@@ -6,11 +6,11 @@ import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { GmailMailerService } from './gmail-mailer.service.js';
 import { GoogleAuthService } from './google-auth.service.js';
-import { JwtAuthGuard } from './jwt-auth.guard.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 import { LogMailerService } from './log-mailer.service.js';
 import { MAILER_PROVIDER, type Mailer } from './mailer.port.js';
 import { PasswordService } from './password.service.js';
-import { RolesGuard } from './roles.guard.js';
+import { RolesGuard } from './guards/roles.guard.js';
 
 @Module({
   imports: [

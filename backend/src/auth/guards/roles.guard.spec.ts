@@ -2,8 +2,8 @@ import { ForbiddenException } from '@nestjs/common';
 import type { ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
 import { describe, expect, it, vi } from 'vitest';
-import { IS_PUBLIC_KEY } from '../public.decorator.js';
-import { ROLES_KEY } from '../roles.decorator.js';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
+import { ROLES_KEY } from '../decorators/roles.decorator.js';
 import { RolesGuard } from './roles.guard.js';
 
 function setup(metadata: Record<string, unknown>, user?: unknown) {

@@ -6,8 +6,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { CurrentUser } from './current-user.decorator.js';
-import { Public } from './public.decorator.js';
+import { CurrentUser } from './decorators/current-user.decorator.js';
+import { Public } from './decorators/public.decorator.js';
 import type { AuthenticatedUser } from './authenticated-user.js';
 import { AuthService } from './auth.service.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
