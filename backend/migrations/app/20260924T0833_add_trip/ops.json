@@ -1,0 +1,122 @@
+[
+  {
+    "id": "table.trip",
+    "label": "Create table \"trip\"",
+    "summary": "Creates table \"trip\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "trip"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"trip\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"trip\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"trip\"",
+        "sql": "CREATE TABLE \"public\".\"trip\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"destinationId\" int4 NOT NULL,\n  \"durationDays\" int4 NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"isActive\" bool DEFAULT true NOT NULL,\n  \"name\" text NOT NULL,\n  \"operatorId\" int4,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"trip\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"trip\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.trip.trip_destinationId_idx_1646ee5c",
+    "label": "Create index \"trip_destinationId_idx_1646ee5c\" on \"trip\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "trip_destinationId_idx_1646ee5c",
+        "table": "trip"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"trip_destinationId_idx_1646ee5c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"trip_destinationId_idx_1646ee5c\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"trip_destinationId_idx_1646ee5c\"",
+        "sql": "CREATE INDEX \"trip_destinationId_idx_1646ee5c\" ON \"public\".\"trip\" (\"destinationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"trip_destinationId_idx_1646ee5c\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"trip_destinationId_idx_1646ee5c\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.trip.trip_destinationId_fkey",
+    "label": "Add foreign key \"trip_destinationId_fkey\" on \"trip\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "trip_destinationId_fkey",
+        "table": "trip"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"trip_destinationId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "trip_destinationId_fkey",
+          "public",
+          "\"public\".\"trip\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"trip_destinationId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"trip\"\nADD CONSTRAINT \"trip_destinationId_fkey\"\nFOREIGN KEY (\"destinationId\")\nREFERENCES \"public\".\"destination\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"trip_destinationId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "trip_destinationId_fkey",
+          "public",
+          "\"public\".\"trip\""
+        ]
+      }
+    ]
+  }
+]

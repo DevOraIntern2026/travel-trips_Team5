@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { db } from '../prisma/db.js';
 import type { Models } from '../prisma/contract.d';
+import { escapeLikePattern } from '../common/like-pattern.js';
 import {
   DEFAULT_DESTINATIONS_LIMIT,
   DEFAULT_DESTINATIONS_PAGE,
@@ -13,7 +14,9 @@ import {
 import type { CreateDestinationDto } from './dto/create-destination.dto.js';
 import type { UpdateDestinationDto } from './dto/update-destination.dto.js';
 
-export type Destination = Models.public_Destination;
+// Omit 'trips': the back-relation is only populated via .include(), which
+// no destination query uses.
+export type Destination = Omit<Models.public_Destination, 'trips'>;
 
 export interface DestinationsMeta {
   page: number;
@@ -25,11 +28,6 @@ export interface DestinationsMeta {
 export interface PaginatedDestinations {
   data: Destination[];
   meta: DestinationsMeta;
-}
-
-/** Escape LIKE wildcards so user input only ever matches literally. */
-function escapeLikePattern(value: string): string {
-  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
 
 /**

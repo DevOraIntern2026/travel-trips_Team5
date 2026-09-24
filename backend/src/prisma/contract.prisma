@@ -27,6 +27,20 @@ model Destination {
   city        String
   country     String
   isActive    Boolean  @default(true)
+  trips       Trip[]
   createdAt   TimestamptzString @default(now())
   updatedAt   temporal.updatedAtString()
+}
+
+model Trip {
+  id            Int         @id @default(autoincrement())
+  destinationId Int
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  operatorId    Int?
+  name          String
+  description   String?
+  durationDays  Int
+  isActive      Boolean     @default(true)
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
 }

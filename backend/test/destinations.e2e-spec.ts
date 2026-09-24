@@ -6,18 +6,25 @@ import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module.js';
 import { db } from './../src/prisma/db.js';
 
-async function clearDestinations() {
+async function clearTable(table: 'trip' | 'destination', iterations = 1000) {
   // The ORM .delete() removes a single matching row per call, so loop until
   // the table is empty. Capped as a safety net against infinite loops.
-  for (let i = 0; i < 1000; i++) {
-    const deleted = await db.orm.public.Destination.where((d) =>
-      d.id.gte(0),
-    ).delete();
+  for (let i = 0; i < iterations; i++) {
+    const deleted =
+      table === 'trip'
+        ? await db.orm.public.Trip.where((t) => t.id.gte(0)).delete()
+        : await db.orm.public.Destination.where((d) => d.id.gte(0)).delete();
     if (!deleted || (Array.isArray(deleted) && deleted.length === 0)) {
       return;
     }
   }
-  throw new Error('clearDestinations did not converge');
+  throw new Error(`clearTable(${table}) did not converge`);
+}
+
+async function clearDestinations() {
+  // Trips first: the trip.destinationId FK blocks destination deletes.
+  await clearTable('trip');
+  await clearTable('destination');
 }
 
 describe('Destinations (e2e)', () => {
