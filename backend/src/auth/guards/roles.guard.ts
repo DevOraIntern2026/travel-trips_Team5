@@ -5,8 +5,8 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from './public.decorator.js';
-import { ROLES_KEY, UserRole } from './roles.decorator.js';
+import { IS_PUBLIC_KEY } from '../public.decorator.js';
+import { ROLES_KEY, UserRole } from '../roles.decorator.js';
 
 interface AuthenticatedRequest {
   user?: {
