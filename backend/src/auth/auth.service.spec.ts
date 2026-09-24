@@ -170,6 +170,24 @@ describe('AuthService', () => {
       expect(result.refreshToken).toBeTruthy();
     });
 
+    it('succeeds even when the welcome email fails to send', async () => {
+      harness.users.first.mockResolvedValue(null);
+      harness.userNs.create.mockResolvedValue(user());
+      harness.tokenNs.create.mockResolvedValue(authToken());
+      harness.userNs.first.mockResolvedValue(user());
+      harness.sessionNs.create.mockResolvedValue(session());
+      harness.mailer.sendVerificationEmail.mockRejectedValue(
+        new Error('535 Username and Password not accepted'),
+      );
+
+      const result = await service.register({
+        email: 'sara@example.com',
+        password: 'S3cure-p@ssphrase',
+      });
+
+      expect(result.accessToken).toBe('signed-access');
+    });
+
     it('rejects duplicate emails case-insensitively', async () => {
       harness.users.first.mockResolvedValue(user());
 

@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -55,6 +56,8 @@ function invalidCredentials(): UnauthorizedException {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly jwt: JwtService,
     private readonly passwords: PasswordService,
@@ -278,18 +281,28 @@ export class AuthService {
     const base = this.config.get<string>('APP_PUBLIC_URL') ?? '';
     const path = purpose === 'verify-email' ? 'verify-email' : 'reset-password';
     const link = `${base}/auth/${path}?token=${raw}`;
-    if (purpose === 'verify-email') {
-      const user = await db.orm.public.User.first({ id: userId });
-      await this.mailer.sendVerificationEmail({
-        to: user?.email ?? '',
-        link,
-      });
-    } else {
-      const user = await db.orm.public.User.first({ id: userId });
-      await this.mailer.sendPasswordResetEmail({
-        to: user?.email ?? '',
-        link,
-      });
+    // Email is a best-effort side effect: a mail failure (bad SMTP
+    // credentials, provider outage) must never fail the request that
+    // triggered it. The token row is already stored, so verification and
+    // reset stay possible via resend.
+    try {
+      if (purpose === 'verify-email') {
+        const user = await db.orm.public.User.first({ id: userId });
+        await this.mailer.sendVerificationEmail({
+          to: user?.email ?? '',
+          link,
+        });
+      } else {
+        const user = await db.orm.public.User.first({ id: userId });
+        await this.mailer.sendPasswordResetEmail({
+          to: user?.email ?? '',
+          link,
+        });
+      }
+    } catch (error) {
+      this.logger.warn(
+        `Outbound ${purpose} email failed for user ${userId}: ${(error as Error)?.message ?? error}`,
+      );
     }
     return raw;
   }
