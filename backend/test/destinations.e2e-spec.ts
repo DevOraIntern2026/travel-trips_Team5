@@ -1,0 +1,238 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import request from 'supertest';
+import { App } from 'supertest/types';
+import { AppModule } from './../src/app.module.js';
+import { db } from './../src/prisma/db.js';
+
+async function clearTable(table: 'trip' | 'destination', iterations = 1000) {
+  // The ORM .delete() removes a single matching row per call, so loop until
+  // the table is empty. Capped as a safety net against infinite loops.
+  for (let i = 0; i < iterations; i++) {
+    const deleted =
+      table === 'trip'
+        ? await db.orm.public.Trip.where((t) => t.id.gte(0)).delete()
+        : await db.orm.public.Destination.where((d) => d.id.gte(0)).delete();
+    if (!deleted || (Array.isArray(deleted) && deleted.length === 0)) {
+      return;
+    }
+  }
+  throw new Error(`clearTable(${table}) did not converge`);
+}
+
+async function clearDestinations() {
+  // Trips first: the trip.destinationId FK blocks destination deletes.
+  await clearTable('trip');
+  await clearTable('destination');
+}
+
+describe('Destinations (e2e)', () => {
+  let app: INestApplication<App>;
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      // The global 10 req/60s throttle would 429 this suite: bypass it here.
+      // Rate limiting itself is covered by the framework, not this feature.
+      .overrideGuard(ThrottlerGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
+
+    app = moduleFixture.createNestApplication();
+    // Mirror main.ts: global prefix + validation pipe.
+    app.setGlobalPrefix('api/v1');
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
+    await app.init();
+  });
+
+  beforeEach(async () => {
+    await clearDestinations();
+  });
+
+  afterAll(async () => {
+    await app.close();
+    await db.close();
+  });
+
+  const createPayload = (overrides = {}) => ({
+    name: 'Cairo',
+    city: 'Cairo',
+    country: 'Egypt',
+    ...overrides,
+  });
+
+  it('GET /api/v1/destinations returns paginated data with meta', async () => {
+    await db.orm.public.Destination.create(createPayload());
+    await db.orm.public.Destination.create(
+      createPayload({ name: 'Luxor', city: 'Luxor' }),
+    );
+    await db.orm.public.Destination.create(
+      createPayload({ name: 'Aswan', city: 'Aswan' }),
+    );
+
+    const res = await request(app.getHttpServer())
+      .get('/api/v1/destinations?page=1&limit=2')
+      .expect(200);
+
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.meta).toEqual({
+      page: 1,
+      limit: 2,
+      total: 3,
+      totalPages: 2,
+    });
+  });
+
+  it('GET /api/v1/destinations searches by name (case-insensitive)', async () => {
+    await db.orm.public.Destination.create(createPayload());
+    await db.orm.public.Destination.create(
+      createPayload({ name: 'Luxor', city: 'Luxor' }),
+    );
+
+    const res = await request(app.getHttpServer())
+      .get('/api/v1/destinations?search=CAI')
+      .expect(200);
+
+    expect(res.body.meta.total).toBe(1);
+    expect(res.body.data[0].name).toBe('Cairo');
+  });
+
+  it('GET /api/v1/destinations hides inactive records', async () => {
+    const created = await db.orm.public.Destination.create(createPayload());
+    await db.orm.public.Destination.where({ id: created.id }).update({
+      isActive: false,
+    });
+
+    const res = await request(app.getHttpServer())
+      .get('/api/v1/destinations')
+      .expect(200);
+
+    expect(res.body.meta.total).toBe(0);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET /api/v1/destinations/:id returns details, 404 when missing or inactive', async () => {
+    const created = await db.orm.public.Destination.create(createPayload());
+
+    const res = await request(app.getHttpServer())
+      .get(`/api/v1/destinations/${created.id}`)
+      .expect(200);
+    expect(res.body.name).toBe('Cairo');
+    expect(res.body.isActive).toBe(true);
+
+    await request(app.getHttpServer())
+      .get('/api/v1/destinations/999999')
+      .expect(404);
+
+    await db.orm.public.Destination.where({ id: created.id }).update({
+      isActive: false,
+    });
+    await request(app.getHttpServer())
+      .get(`/api/v1/destinations/${created.id}`)
+      .expect(404);
+  });
+
+  it('POST /api/v1/destinations creates a destination', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/api/v1/destinations')
+      .send(createPayload({ description: 'Nile city' }))
+      .expect(201);
+
+    expect(res.body.id).toEqual(expect.any(Number));
+    expect(res.body.name).toBe('Cairo');
+    expect(res.body.isActive).toBe(true);
+  });
+
+  it('POST /api/v1/destinations rejects invalid bodies with 400', async () => {
+    await request(app.getHttpServer())
+      .post('/api/v1/destinations')
+      .send({ city: 'Cairo', country: 'Egypt' })
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .post('/api/v1/destinations')
+      .send({ name: '   ', city: 'Cairo', country: 'Egypt' })
+      .expect(400);
+  });
+
+  it('POST /api/v1/destinations rejects duplicate names (any casing) with 409', async () => {
+    await db.orm.public.Destination.create(createPayload());
+
+    await request(app.getHttpServer())
+      .post('/api/v1/destinations')
+      .send(createPayload({ name: 'cAiRo' }))
+      .expect(409);
+  });
+
+  it('PUT /api/v1/destinations/:id updates, 404s when missing, 409s on duplicates', async () => {
+    const created = await db.orm.public.Destination.create(createPayload());
+    await db.orm.public.Destination.create(
+      createPayload({ name: 'Luxor', city: 'Luxor' }),
+    );
+
+    const updated = await request(app.getHttpServer())
+      .put(`/api/v1/destinations/${created.id}`)
+      .send({ city: 'Giza' })
+      .expect(200);
+    expect(updated.body.city).toBe('Giza');
+
+    await request(app.getHttpServer())
+      .put('/api/v1/destinations/999999')
+      .send({ city: 'Giza' })
+      .expect(404);
+
+    await request(app.getHttpServer())
+      .put(`/api/v1/destinations/${created.id}`)
+      .send({ name: 'luxor' })
+      .expect(409);
+  });
+
+  it('PUT /api/v1/destinations/:id can reactivate', async () => {
+    const created = await db.orm.public.Destination.create(createPayload());
+    await db.orm.public.Destination.where({ id: created.id }).update({
+      isActive: false,
+    });
+
+    const res = await request(app.getHttpServer())
+      .put(`/api/v1/destinations/${created.id}`)
+      .send({ isActive: true })
+      .expect(200);
+    expect(res.body.isActive).toBe(true);
+
+    await request(app.getHttpServer())
+      .get(`/api/v1/destinations/${created.id}`)
+      .expect(200);
+  });
+
+  it('DELETE /api/v1/destinations/:id deactivates (idempotent), 404s when missing', async () => {
+    const created = await db.orm.public.Destination.create(createPayload());
+
+    const res = await request(app.getHttpServer())
+      .delete(`/api/v1/destinations/${created.id}`)
+      .expect(200);
+    expect(res.body.isActive).toBe(false);
+
+    // Gone from public access but the row still exists.
+    await request(app.getHttpServer())
+      .get(`/api/v1/destinations/${created.id}`)
+      .expect(404);
+
+    await request(app.getHttpServer())
+      .delete(`/api/v1/destinations/${created.id}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .delete('/api/v1/destinations/999999')
+      .expect(404);
+  });
+
+  it('rejects non-numeric ids with 400', async () => {
+    await request(app.getHttpServer())
+      .get('/api/v1/destinations/abc')
+      .expect(400);
+  });
+});
