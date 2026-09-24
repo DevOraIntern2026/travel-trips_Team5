@@ -86,20 +86,21 @@ export class TripDatesService {
     const limit = query.limit ?? DEFAULT_TRIP_DATES_LIMIT;
 
     const [rows, total] = await db.transaction(async (tx) => {
-      const data = await tx.orm.public.TripDate.where((d) =>
-        d.tripId.eq(tripId),
-      )
-        .where((d) => d.isActive.eq(true))
+      // One filter builder feeds both queries, so page and total cannot
+      // diverge.
+      const buildBase = () =>
+        tx.orm.public.TripDate.where((d) => d.tripId.eq(tripId)).where((d) =>
+          d.isActive.eq(true),
+        );
+      const data = await buildBase()
         .orderBy((d) => d.startDate.asc())
         .limit(limit)
         .offset((page - 1) * limit)
         .all();
 
-      const { total } = await tx.orm.public.TripDate.where((d) =>
-        d.tripId.eq(tripId),
-      )
-        .where((d) => d.isActive.eq(true))
-        .aggregate((a) => ({ total: a.count() }));
+      const { total } = await buildBase().aggregate((a) => ({
+        total: a.count(),
+      }));
 
       return [data, total] as const;
     });

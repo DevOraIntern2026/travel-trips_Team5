@@ -58,27 +58,27 @@ export class DestinationsService {
     const search = query.search?.trim() ? query.search.trim() : undefined;
 
     // Page + total run inside one transaction: a single round trip and a
-    // consistent snapshot, so `total` always matches `data`.
+    // consistent snapshot, so `total` always matches `data`. Both queries
+    // share one filter builder, so they cannot diverge.
     const [data, total] = await db.transaction(async (tx) => {
-      let list = tx.orm.public.Destination.where((d) => d.isActive.eq(true));
-      if (search !== undefined) {
-        list = list.where((d) =>
-          d.name.ilike(`%${escapeLikePattern(search)}%`),
+      const buildBase = () => {
+        let filtered = tx.orm.public.Destination.where((d) =>
+          d.isActive.eq(true),
         );
-      }
-      const rows = await list
+        if (search !== undefined) {
+          filtered = filtered.where((d) =>
+            d.name.ilike(`%${escapeLikePattern(search)}%`),
+          );
+        }
+        return filtered;
+      };
+      const rows = await buildBase()
         .orderBy((d) => d.id.asc())
         .limit(limit)
         .offset((page - 1) * limit)
         .all();
 
-      let counter = tx.orm.public.Destination.where((d) => d.isActive.eq(true));
-      if (search !== undefined) {
-        counter = counter.where((d) =>
-          d.name.ilike(`%${escapeLikePattern(search)}%`),
-        );
-      }
-      const { total } = await counter.aggregate((a) => ({
+      const { total } = await buildBase().aggregate((a) => ({
         total: a.count(),
       }));
 

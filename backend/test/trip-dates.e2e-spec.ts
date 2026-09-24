@@ -1,12 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module.js';
 import { BOOKING_SEATS_PROVIDER } from './../src/bookings/booking-seats.port.js';
 import { db } from './../src/prisma/db.js';
 import { clearAllTables } from './helpers/db-cleanup.js';
+import { createTestApp } from './helpers/test-app.js';
 
 async function seedTrip(active = true) {
   const destination = await db.orm.public.Destination.create({
@@ -35,31 +33,13 @@ const datePayload = (overrides = {}) => ({
   ...overrides,
 });
 
-function buildApp(bookedSeatsOverride?: (dateId: number) => Promise<number>) {
-  let builder = Test.createTestingModule({ imports: [AppModule] })
-    .overrideGuard(ThrottlerGuard)
-    .useValue({ canActivate: () => true });
-  if (bookedSeatsOverride) {
-    builder = builder
-      .overrideProvider(BOOKING_SEATS_PROVIDER)
-      .useValue({ getConfirmedBookedSeats: bookedSeatsOverride });
-  }
-  return builder.compile();
-}
-
 describe('TripDates (e2e)', () => {
   let app: INestApplication<App>;
   let tripId: number;
   let inactiveTripId: number;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await buildApp();
-    app = moduleFixture.createNestApplication();
-    app.setGlobalPrefix('api/v1');
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, transform: true }),
-    );
-    await app.init();
+    app = await createTestApp();
   });
 
   beforeEach(async () => {
@@ -303,13 +283,11 @@ describe('TripDates capacity vs bookings (e2e, seam override)', () => {
 
   beforeAll(async () => {
     // Pretend Backend 3 reports 8 confirmed seats for every date.
-    const moduleFixture: TestingModule = await buildApp(async () => 8);
-    app = moduleFixture.createNestApplication();
-    app.setGlobalPrefix('api/v1');
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, transform: true }),
+    app = await createTestApp((builder) =>
+      builder
+        .overrideProvider(BOOKING_SEATS_PROVIDER)
+        .useValue({ getConfirmedBookedSeats: async () => 8 }),
     );
-    await app.init();
   });
 
   beforeEach(async () => {

@@ -68,6 +68,113 @@ export interface TripSearchCriteria {
   limit?: number;
 }
 
+interface DayBounds {
+  start: number;
+  end: number;
+}
+
+interface DateFilters {
+  dayBounds?: DayBounds;
+  minPrice?: number;
+  maxPrice?: number;
+}
+
+function groupDatesByTrip(rows: TripDateRow[]): Map<number, TripDateRow[]> {
+  const datesByTrip = new Map<number, TripDateRow[]>();
+  for (const row of rows) {
+    const bucket = datesByTrip.get(row.tripId) ?? [];
+    bucket.push(row);
+    datesByTrip.set(row.tripId, bucket);
+  }
+  return datesByTrip;
+}
+
+/** Keep, per trip, the dates inside the day overlap + price window. */
+function qualifyDatesByTrip(
+  datesByTrip: Map<number, TripDateRow[]>,
+  filters: DateFilters,
+): Map<number, TripDateRow[]> {
+  const qualifying = new Map<number, TripDateRow[]>();
+  for (const [tripId, rows] of datesByTrip) {
+    qualifying.set(
+      tripId,
+      rows.filter((row) => {
+        if (filters.dayBounds) {
+          const start = Date.parse(row.startDate);
+          const end = Date.parse(row.endDate);
+          if (start > filters.dayBounds.end || end < filters.dayBounds.start) {
+            return false;
+          }
+        }
+        const price = Number(row.price);
+        if (filters.minPrice !== undefined && price < filters.minPrice) {
+          return false;
+        }
+        if (filters.maxPrice !== undefined && price > filters.maxPrice) {
+          return false;
+        }
+        return true;
+      }),
+    );
+  }
+  return qualifying;
+}
+
+function minPriceOf(
+  qualifying: Map<number, TripDateRow[]>,
+  tripId: number,
+): number | undefined {
+  let best: number | undefined;
+  for (const row of qualifying.get(tripId) ?? []) {
+    const price = Number(row.price);
+    if (best === undefined || price < best) best = price;
+  }
+  return best;
+}
+
+function earliestOf(
+  qualifying: Map<number, TripDateRow[]>,
+  tripId: number,
+): number | undefined {
+  let best: number | undefined;
+  for (const row of qualifying.get(tripId) ?? []) {
+    const start = Date.parse(row.startDate);
+    if (best === undefined || start < best) best = start;
+  }
+  return best;
+}
+
+/** Sort a copy; trips without rankable dates always sort last. */
+function sortTrips(
+  trips: Trip[],
+  qualifying: Map<number, TripDateRow[]>,
+  sort: TripSort | undefined,
+): Trip[] {
+  const ranked = [...trips];
+  if (sort === 'price_asc') {
+    ranked.sort(
+      (a, b) =>
+        (minPriceOf(qualifying, a.id) ?? Number.POSITIVE_INFINITY) -
+        (minPriceOf(qualifying, b.id) ?? Number.POSITIVE_INFINITY),
+    );
+  } else if (sort === 'price_desc') {
+    ranked.sort(
+      (a, b) =>
+        (minPriceOf(qualifying, b.id) ?? Number.NEGATIVE_INFINITY) -
+        (minPriceOf(qualifying, a.id) ?? Number.NEGATIVE_INFINITY),
+    );
+  } else if (sort === 'date_asc') {
+    ranked.sort(
+      (a, b) =>
+        (earliestOf(qualifying, a.id) ?? Number.POSITIVE_INFINITY) -
+        (earliestOf(qualifying, b.id) ?? Number.POSITIVE_INFINITY),
+    );
+  } else {
+    ranked.sort((a, b) => a.id - b.id);
+  }
+  return ranked;
+}
+
 @Injectable()
 export class TripsService {
   constructor(
@@ -90,39 +197,31 @@ export class TripsService {
     const operatorId = query.operatorId ?? undefined;
 
     // Page + total run inside one transaction: a single round trip and a
-    // consistent snapshot, so `total` always matches `data`.
+    // consistent snapshot, so `total` always matches `data`. Both queries
+    // share one filter builder, so they cannot diverge.
     const [data, total] = await db.transaction(async (tx) => {
-      let list = tx.orm.public.Trip.where((t) => t.isActive.eq(true));
-      if (destinationId !== undefined) {
-        list = list.where((t) => t.destinationId.eq(destinationId));
-      }
-      if (operatorId !== undefined) {
-        list = list.where((t) => t.operatorId.eq(operatorId));
-      }
-      if (search !== undefined) {
-        list = list.where((t) =>
-          t.name.ilike(`%${escapeLikePattern(search)}%`),
-        );
-      }
-      const rows = await list
+      const buildBase = () => {
+        let filtered = tx.orm.public.Trip.where((t) => t.isActive.eq(true));
+        if (destinationId !== undefined) {
+          filtered = filtered.where((t) => t.destinationId.eq(destinationId));
+        }
+        if (operatorId !== undefined) {
+          filtered = filtered.where((t) => t.operatorId.eq(operatorId));
+        }
+        if (search !== undefined) {
+          filtered = filtered.where((t) =>
+            t.name.ilike(`%${escapeLikePattern(search)}%`),
+          );
+        }
+        return filtered;
+      };
+      const rows = await buildBase()
         .orderBy((t) => t.id.asc())
         .limit(limit)
         .offset((page - 1) * limit)
         .all();
 
-      let counter = tx.orm.public.Trip.where((t) => t.isActive.eq(true));
-      if (destinationId !== undefined) {
-        counter = counter.where((t) => t.destinationId.eq(destinationId));
-      }
-      if (operatorId !== undefined) {
-        counter = counter.where((t) => t.operatorId.eq(operatorId));
-      }
-      if (search !== undefined) {
-        counter = counter.where((t) =>
-          t.name.ilike(`%${escapeLikePattern(search)}%`),
-        );
-      }
-      const { total } = await counter.aggregate((a) => ({
+      const { total } = await buildBase().aggregate((a) => ({
         total: a.count(),
       }));
 
@@ -161,6 +260,9 @@ export class TripsService {
     const page = criteria.page ?? DEFAULT_TRIPS_PAGE;
     const limit = criteria.limit ?? DEFAULT_TRIPS_LIMIT;
     const text = criteria.text?.trim() ? criteria.text.trim() : undefined;
+    const destinationId = criteria.destinationId;
+    const minDuration = criteria.minDuration;
+    const maxDuration = criteria.maxDuration;
     const dayBounds = criteria.date ? toDayBounds(criteria.date) : undefined;
     if (
       criteria.minPrice !== undefined &&
@@ -197,20 +299,14 @@ export class TripsService {
       }
 
       let base = tx.orm.public.Trip.where((t) => t.isActive.eq(true));
-      if (criteria.destinationId !== undefined) {
-        base = base.where((t) =>
-          t.destinationId.eq(criteria.destinationId as number),
-        );
+      if (destinationId !== undefined) {
+        base = base.where((t) => t.destinationId.eq(destinationId));
       }
-      if (criteria.minDuration !== undefined) {
-        base = base.where((t) =>
-          t.durationDays.gte(criteria.minDuration as number),
-        );
+      if (minDuration !== undefined) {
+        base = base.where((t) => t.durationDays.gte(minDuration));
       }
-      if (criteria.maxDuration !== undefined) {
-        base = base.where((t) =>
-          t.durationDays.lte(criteria.maxDuration as number),
-        );
+      if (maxDuration !== undefined) {
+        base = base.where((t) => t.durationDays.lte(maxDuration));
       }
       if (text !== undefined) {
         const pattern = `%${escapeLikePattern(text)}%`;
@@ -241,35 +337,15 @@ export class TripsService {
           .all();
       }
 
-      const datesByTrip = new Map<number, TripDateRow[]>();
-      for (const row of dateRows) {
-        const bucket = datesByTrip.get(row.tripId) ?? [];
-        bucket.push(row);
-        datesByTrip.set(row.tripId, bucket);
-      }
+      const datesByTrip = groupDatesByTrip(dateRows);
       return { trips, datesByTrip };
     });
 
-    // Per-trip date qualification (day overlap + price window).
-    const qualifying = new Map<number, TripDateRow[]>();
-    for (const trip of trips) {
-      const rows = (datesByTrip.get(trip.id) ?? []).filter((row) => {
-        if (dayBounds) {
-          const start = Date.parse(row.startDate);
-          const end = Date.parse(row.endDate);
-          if (start > dayBounds.end || end < dayBounds.start) return false;
-        }
-        const price = Number(row.price);
-        if (criteria.minPrice !== undefined && price < criteria.minPrice) {
-          return false;
-        }
-        if (criteria.maxPrice !== undefined && price > criteria.maxPrice) {
-          return false;
-        }
-        return true;
-      });
-      qualifying.set(trip.id, rows);
-    }
+    const qualifying = qualifyDatesByTrip(datesByTrip, {
+      dayBounds,
+      minPrice: criteria.minPrice,
+      maxPrice: criteria.maxPrice,
+    });
 
     const needsDateMatch =
       dayBounds !== undefined ||
@@ -281,63 +357,14 @@ export class TripsService {
       : [...trips];
 
     if (criteria.availableOnly === true) {
-      const visible: typeof matching = [];
-      for (const trip of matching) {
-        const rows = qualifying.get(trip.id) ?? [];
-        let open = false;
-        for (const row of rows) {
-          const booked = await this.bookedSeats.getConfirmedBookedSeats(row.id);
-          if (row.capacity - booked > 0) {
-            open = true;
-            break;
-          }
-        }
-        if (open) visible.push(trip);
-      }
-      matching = visible;
+      matching = await this.keepAvailableOnly(matching, qualifying);
     }
 
-    const minPriceOf = (tripId: number): number | undefined => {
-      let best: number | undefined;
-      for (const row of qualifying.get(tripId) ?? []) {
-        const price = Number(row.price);
-        if (best === undefined || price < best) best = price;
-      }
-      return best;
-    };
-    const earliestOf = (tripId: number): number | undefined => {
-      let best: number | undefined;
-      for (const row of qualifying.get(tripId) ?? []) {
-        const start = Date.parse(row.startDate);
-        if (best === undefined || start < best) best = start;
-      }
-      return best;
-    };
-    // Trips without rankable dates always sort last.
-    if (criteria.sort === 'price_asc') {
-      matching.sort(
-        (a, b) =>
-          (minPriceOf(a.id) ?? Number.POSITIVE_INFINITY) -
-          (minPriceOf(b.id) ?? Number.POSITIVE_INFINITY),
-      );
-    } else if (criteria.sort === 'price_desc') {
-      matching.sort(
-        (a, b) =>
-          (minPriceOf(b.id) ?? Number.NEGATIVE_INFINITY) -
-          (minPriceOf(a.id) ?? Number.NEGATIVE_INFINITY),
-      );
-    } else if (criteria.sort === 'date_asc') {
-      matching.sort(
-        (a, b) =>
-          (earliestOf(a.id) ?? Number.POSITIVE_INFINITY) -
-          (earliestOf(b.id) ?? Number.POSITIVE_INFINITY),
-      );
-    } else {
-      matching.sort((a, b) => a.id - b.id);
-    }
-
+    const data = sortTrips(matching, qualifying, criteria.sort).slice(
+      (page - 1) * limit,
+      page * limit,
+    );
     const total = matching.length;
-    const data = matching.slice((page - 1) * limit, page * limit);
     return {
       data,
       meta: {
@@ -347,6 +374,25 @@ export class TripsService {
         totalPages: total === 0 ? 0 : Math.ceil(total / limit),
       },
     };
+  }
+
+  /** Keep trips having at least one date with seats left. */
+  private async keepAvailableOnly(
+    trips: Trip[],
+    qualifying: Map<number, TripDateRow[]>,
+  ): Promise<Trip[]> {
+    const visible: Trip[] = [];
+    for (const trip of trips) {
+      const rows = qualifying.get(trip.id) ?? [];
+      for (const row of rows) {
+        const booked = await this.bookedSeats.getConfirmedBookedSeats(row.id);
+        if (row.capacity - booked > 0) {
+          visible.push(trip);
+          break;
+        }
+      }
+    }
+    return visible;
   }
 
   async findOne(tripId: number): Promise<Trip> {
@@ -502,7 +548,7 @@ export class TripsService {
 }
 
 /** UTC day bounds [start, end] in ms for a calendar-day match. */
-function toDayBounds(date: string): { start: number; end: number } {
+function toDayBounds(date: string): DayBounds {
   const parsed = Date.parse(date);
   if (Number.isNaN(parsed)) {
     throw new BadRequestException('date must be a valid ISO-8601 calendar day');

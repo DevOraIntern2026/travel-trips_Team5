@@ -14,14 +14,7 @@ import {
   DEFAULT_TRIPS_PAGE,
   MAX_TRIPS_LIMIT,
 } from './trip-query.dto.js';
-
-const toBoolean = ({ value }: { value: unknown }): unknown => {
-  if (value === true || value === 'true') return true;
-  if (value === false || value === 'false' || value === undefined) {
-    return value === undefined ? undefined : false;
-  }
-  return value;
-};
+import { toBoolean } from '../../common/transforms.js';
 
 export class TripFilterQueryDto {
   @ApiPropertyOptional({ example: 1 })
