@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { TripsService } from './trips.service.js';
 import type { Trip } from './trips.service.js';
 
@@ -25,23 +25,31 @@ const harness = vi.hoisted(() => {
   };
   const collection = build();
   const txCollection = build();
+  const tripDateCollection = build();
   const tripNamespace = {
     where: vi.fn(() => collection),
     first: vi.fn(),
     create: vi.fn(),
   };
+  const tripDateNamespace = { where: vi.fn(() => tripDateCollection) };
   const destinationNamespace = { first: vi.fn() };
   const txNamespace = { where: vi.fn(() => txCollection) };
   const txDb = { orm: { public: { Trip: txNamespace } } };
   const db = {
     orm: {
-      public: { Trip: tripNamespace, Destination: destinationNamespace },
+      public: {
+        Trip: tripNamespace,
+        TripDate: tripDateNamespace,
+        Destination: destinationNamespace,
+      },
     },
     transaction: vi.fn((cb) => cb(txDb)),
   };
   return {
     db,
     tripNamespace,
+    tripDateNamespace,
+    tripDateCollection,
     destinationNamespace,
     collection,
     txNamespace,
@@ -98,6 +106,8 @@ describe('TripsService', () => {
     vi.clearAllMocks();
     harness.tripNamespace.where.mockReturnValue(harness.collection);
     harness.txNamespace.where.mockReturnValue(harness.txCollection);
+    harness.tripDateNamespace.where.mockReturnValue(harness.tripDateCollection);
+    harness.tripDateCollection.first.mockResolvedValue(null);
     service = new TripsService();
   });
 
@@ -285,6 +295,14 @@ describe('TripsService', () => {
       await expect(service.remove(999)).rejects.toBeInstanceOf(
         NotFoundException,
       );
+    });
+
+    it('blocks deactivation while active dates exist', async () => {
+      harness.collection.first.mockResolvedValue(trip());
+      harness.tripDateCollection.first.mockResolvedValue({ id: 10 });
+
+      await expect(service.remove(1)).rejects.toBeInstanceOf(ConflictException);
+      expect(harness.collection.update).not.toHaveBeenCalled();
     });
   });
 

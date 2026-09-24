@@ -5,26 +5,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module.js';
 import { db } from './../src/prisma/db.js';
-
-async function clearTable(table: 'trip' | 'destination', iterations = 1000) {
-  // The ORM .delete() removes a single matching row per call.
-  for (let i = 0; i < iterations; i++) {
-    const deleted =
-      table === 'trip'
-        ? await db.orm.public.Trip.where((t) => t.id.gte(0)).delete()
-        : await db.orm.public.Destination.where((d) => d.id.gte(0)).delete();
-    if (!deleted || (Array.isArray(deleted) && deleted.length === 0)) {
-      return;
-    }
-  }
-  throw new Error(`clearTable(${table}) did not converge`);
-}
-
-async function clearAll() {
-  // Trips first: the FK points at destinations.
-  await clearTable('trip');
-  await clearTable('destination');
-}
+import { clearAllTables } from './helpers/db-cleanup.js';
 
 describe('Trips (e2e)', () => {
   let app: INestApplication<App>;
@@ -48,7 +29,7 @@ describe('Trips (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await clearAll();
+    await clearAllTables();
     const destination = await db.orm.public.Destination.create({
       name: 'Cairo',
       city: 'Cairo',
@@ -215,6 +196,29 @@ describe('Trips (e2e)', () => {
     await request(app.getHttpServer())
       .delete('/api/v1/trips/999999')
       .expect(404);
+  });
+
+  it('DELETE /api/v1/trips/:id is blocked while active dates exist', async () => {
+    const created = await db.orm.public.Trip.create(createPayload());
+    const date = await db.orm.public.TripDate.create({
+      tripId: created.id,
+      startDate: '2026-10-01T10:00:00.000Z',
+      endDate: '2026-10-05T18:00:00.000Z',
+      price: 99.99,
+      capacity: 20,
+    });
+
+    await request(app.getHttpServer())
+      .delete(`/api/v1/trips/${created.id}`)
+      .expect(409);
+
+    // After deactivating the date, the trip can go.
+    await db.orm.public.TripDate.where({ id: date.id }).update({
+      isActive: false,
+    });
+    await request(app.getHttpServer())
+      .delete(`/api/v1/trips/${created.id}`)
+      .expect(200);
   });
 
   it('GET /api/v1/trips/:id/operator reports the assignment', async () => {

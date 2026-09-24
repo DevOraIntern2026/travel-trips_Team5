@@ -34,9 +34,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'0b9a93ddbed6894c0b07d47becc242f90e853997677c580c73e60d02eb0b2572'>;
+  StorageHashBase<'2037be9593bed13917efc96f637ae0e08502a9d11e4881ff5f4a32bca9558fdb'>;
 export type ExecutionHash =
-  ExecutionHashBase<'8a6fe33c5ec7526f1cb7a41410048970fcaf172fb4b0aa50ae0bc529f584b422'>;
+  ExecutionHashBase<'27c92b0728204f0c08beff34715c34c303fc9165d0cdd9a2a2fc46310f8d6aec'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -559,6 +559,17 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
+    readonly TripDate: {
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly tripId: CodecTypes['pg/int4@1']['output'];
+      readonly startDate: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly endDate: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly price: CodecTypes['pg/numeric@1']['output'];
+      readonly capacity: CodecTypes['pg/int4@1']['output'];
+      readonly isActive: CodecTypes['pg/bool@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
     readonly User: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
@@ -596,6 +607,17 @@ export type FieldInputTypes = {
       readonly name: CodecTypes['pg/text@1']['input'];
       readonly description: CodecTypes['pg/text@1']['input'] | null;
       readonly durationDays: CodecTypes['pg/int4@1']['input'];
+      readonly isActive: CodecTypes['pg/bool@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly TripDate: {
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly tripId: CodecTypes['pg/int4@1']['input'];
+      readonly startDate: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly endDate: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly price: CodecTypes['pg/numeric@1']['input'];
+      readonly capacity: CodecTypes['pg/int4@1']['input'];
       readonly isActive: CodecTypes['pg/bool@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -641,6 +663,17 @@ export type StorageColumnTypes = {
       readonly operatorId: CodecTypes['pg/int4@1']['output'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
+    readonly tripDate: {
+      readonly capacity: CodecTypes['pg/int4@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly endDate: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly isActive: CodecTypes['pg/bool@1']['output'];
+      readonly price: CodecTypes['pg/numeric@1']['output'];
+      readonly startDate: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly tripId: CodecTypes['pg/int4@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
     readonly user: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
@@ -680,6 +713,17 @@ export type StorageColumnInputTypes = {
       readonly isActive: CodecTypes['pg/bool@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
       readonly operatorId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly tripDate: {
+      readonly capacity: CodecTypes['pg/int4@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly endDate: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly isActive: CodecTypes['pg/bool@1']['input'];
+      readonly price: CodecTypes['pg/numeric@1']['input'];
+      readonly startDate: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly tripId: CodecTypes['pg/int4@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly user: {
@@ -736,8 +780,22 @@ export namespace Models {
     isActive: CodecTypes['pg/bool@1']['output'];
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    dates: public_TripDate[];
     destination: public_Destination;
-    readonly [RelationKeys]?: 'destination';
+    readonly [RelationKeys]?: 'dates' | 'destination';
+  };
+  export type public_TripDate = {
+    id: CodecTypes['pg/int4@1']['output'];
+    tripId: CodecTypes['pg/int4@1']['output'];
+    startDate: CodecTypes['pg/timestamptz-string@1']['output'];
+    endDate: CodecTypes['pg/timestamptz-string@1']['output'];
+    price: CodecTypes['pg/numeric@1']['output'];
+    capacity: CodecTypes['pg/int4@1']['output'];
+    isActive: CodecTypes['pg/bool@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    trip: public_Trip;
+    readonly [RelationKeys]?: 'trip';
   };
 }
 
@@ -747,6 +805,7 @@ export declare const models: {
     Post: Models.public_Post;
     Destination: Models.public_Destination;
     Trip: Models.public_Trip;
+    TripDate: Models.public_TripDate;
   };
 };
 
@@ -979,6 +1038,91 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly tripDate: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly tripId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly startDate: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                };
+                readonly endDate: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                };
+                readonly price: {
+                  readonly nativeType: 'numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                };
+                readonly capacity: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly isActive: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', true>;
+                  };
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'now()';
+                  };
+                };
+                readonly updatedAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'tripDate_tripId_idx_75da6d97';
+                  readonly prefix: 'tripDate_tripId_idx';
+                  readonly columns: readonly ['tripId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'tripDate';
+                    readonly columns: readonly ['tripId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'trip';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly user: {
               columns: {
                 readonly id: {
@@ -1051,6 +1195,10 @@ type ContractBase = Omit<
     readonly trip: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'Trip';
+    };
+    readonly tripDate: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'TripDate';
     };
   };
   readonly domain: {
@@ -1283,6 +1431,17 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly dates: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'TripDate';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['tripId'];
+                };
+              };
               readonly destination: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -1306,6 +1465,102 @@ type ContractBase = Omit<
                 readonly name: { readonly column: 'name' };
                 readonly description: { readonly column: 'description' };
                 readonly durationDays: { readonly column: 'durationDays' };
+                readonly isActive: { readonly column: 'isActive' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly TripDate: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/int4@1';
+                };
+              };
+              readonly tripId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/int4@1';
+                };
+              };
+              readonly startDate: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly endDate: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly price: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                };
+              };
+              readonly capacity: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/int4@1';
+                };
+              };
+              readonly isActive: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/bool@1';
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly trip: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Trip';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['tripId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'tripDate';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly tripId: { readonly column: 'tripId' };
+                readonly startDate: { readonly column: 'startDate' };
+                readonly endDate: { readonly column: 'endDate' };
+                readonly price: { readonly column: 'price' };
+                readonly capacity: { readonly column: 'capacity' };
                 readonly isActive: { readonly column: 'isActive' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
@@ -1444,6 +1699,21 @@ type ContractBase = Omit<
           readonly ref: {
             readonly namespace: 'public';
             readonly table: 'trip';
+            readonly column: 'updatedAt';
+          };
+          readonly onCreate: {
+            readonly kind: 'generator';
+            readonly id: 'timestampNow';
+          };
+          readonly onUpdate: {
+            readonly kind: 'generator';
+            readonly id: 'timestampNow';
+          };
+        },
+        {
+          readonly ref: {
+            readonly namespace: 'public';
+            readonly table: 'tripDate';
             readonly column: 'updatedAt';
           };
           readonly onCreate: {

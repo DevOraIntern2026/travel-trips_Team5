@@ -41,6 +41,24 @@ model Trip {
   description   String?
   durationDays  Int
   isActive      Boolean     @default(true)
+  dates         TripDate[]
   createdAt     TimestamptzString @default(now())
   updatedAt     temporal.updatedAtString()
+}
+
+model TripDate {
+  id        Int      @id @default(autoincrement())
+  tripId    Int
+  trip      Trip     @relation(fields: [tripId], references: [id])
+  startDate TimestamptzString
+  endDate   TimestamptzString
+  price     Decimal
+  capacity  Int
+  isActive  Boolean  @default(true)
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@check(expression: "price >= 0", name: "tripdate_price_non_negative")
+  @@check(expression: "capacity > 0", name: "tripdate_capacity_positive")
+  @@check(expression: "\"endDate\" >= \"startDate\"", name: "tripdate_end_after_start")
 }

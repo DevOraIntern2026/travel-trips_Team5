@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { escapeLikePattern } from '../common/like-pattern.js';
 import { db } from '../prisma/db.js';
 import type { Models } from '../prisma/contract.d';
@@ -14,10 +18,11 @@ import type { UpdateTripDto } from './dto/update-trip.dto.js';
 export type TripDestination = Omit<Models.public_Destination, 'trips'>;
 // 'destination' is nullable in the type (LEFT JOIN semantics) even though the
 // FK guarantees a row in practice. Omit 'trips': never included on the branch.
-export type Trip = Omit<Models.public_Trip, 'destination'> & {
+// Omit 'dates': the back-relation is only populated via .include().
+export type Trip = Omit<Models.public_Trip, 'destination' | 'dates'> & {
   destination: TripDestination | null;
 };
-export type TripSummary = Omit<Models.public_Trip, 'destination'>;
+export type TripSummary = Omit<Models.public_Trip, 'destination' | 'dates'>;
 
 export interface TripsMeta {
   page: number;
@@ -167,14 +172,23 @@ export class TripsService {
 
   /**
    * Soft-delete: deactivates instead of hard-deleting so trip dates and
-   * bookings that reference the trip never break. Idempotent.
-   * TODO(trip-dates): block deactivation with 409 while active trip dates
-   * reference this trip.
+   * bookings that reference the trip never break. Idempotent. Blocked while
+   * active dates exist — deactivate the dates first.
    */
   async remove(tripId: number): Promise<Trip> {
     const existing = await this.requireById(tripId);
     if (!existing.isActive) {
       return existing;
+    }
+    const liveDate = await db.orm.public.TripDate.where((d) =>
+      d.tripId.eq(tripId),
+    )
+      .where((d) => d.isActive.eq(true))
+      .first();
+    if (liveDate) {
+      throw new ConflictException(
+        `Cannot deactivate trip with id ${tripId} while it has active dates`,
+      );
     }
     await db.orm.public.Trip.where({ id: tripId }).update({
       isActive: false,
