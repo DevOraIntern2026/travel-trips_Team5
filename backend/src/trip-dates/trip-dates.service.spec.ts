@@ -273,6 +273,59 @@ describe('TripDatesService', () => {
     });
   });
 
+  describe('getAvailability', () => {
+    it('derives remaining seats from capacity minus booked', async () => {
+      bookedSeats = 8;
+      harness.tripNamespace.first.mockResolvedValue(activeTrip());
+      harness.collection.first.mockResolvedValue(dateRow({ capacity: 30 }));
+
+      const result = await service.getAvailability(1, 10);
+
+      expect(result).toEqual({
+        tripId: 1,
+        dateId: 10,
+        capacity: 30,
+        bookedSeats: 8,
+        remainingSeats: 22,
+        available: true,
+      });
+      expect(getConfirmedBookedSeats).toHaveBeenCalledWith(10);
+    });
+
+    it('reports unavailable when fully booked', async () => {
+      bookedSeats = 30;
+      harness.tripNamespace.first.mockResolvedValue(activeTrip());
+      harness.collection.first.mockResolvedValue(dateRow({ capacity: 30 }));
+
+      const result = await service.getAvailability(1, 10);
+
+      expect(result.remainingSeats).toBe(0);
+      expect(result.available).toBe(false);
+    });
+
+    it('clamps overbooking data at zero', async () => {
+      bookedSeats = 35;
+      harness.tripNamespace.first.mockResolvedValue(activeTrip());
+      harness.collection.first.mockResolvedValue(dateRow({ capacity: 30 }));
+
+      const result = await service.getAvailability(1, 10);
+
+      expect(result.remainingSeats).toBe(0);
+      expect(result.available).toBe(false);
+      expect(result.bookedSeats).toBe(35);
+    });
+
+    it('throws NotFoundException for missing or inactive dates', async () => {
+      harness.tripNamespace.first.mockResolvedValue(activeTrip());
+      harness.collection.first.mockResolvedValue(null);
+
+      await expect(service.getAvailability(1, 999)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+      expect(getConfirmedBookedSeats).not.toHaveBeenCalled();
+    });
+  });
+
   describe('remove', () => {
     it('deactivates instead of deleting', async () => {
       // findScoped runs twice (pre-check, re-read): active, then deactivated.

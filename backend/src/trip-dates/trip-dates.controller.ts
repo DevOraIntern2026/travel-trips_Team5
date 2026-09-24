@@ -52,6 +52,23 @@ export class TripDatesController {
     return this.dates.findOne(tripId, dateId);
   }
 
+  @Get(':dateId/availability')
+  @Public()
+  @ApiOperation({ summary: 'Get current capacity and remaining seats' })
+  @ApiParam({ name: 'tripId', example: 1 })
+  @ApiParam({ name: 'dateId', example: 10 })
+  @ApiResponse({ status: 200, description: 'Computed availability.' })
+  @ApiResponse({
+    status: 404,
+    description: 'Trip/date not found, inactive, or mismatched.',
+  })
+  getAvailability(
+    @Param('tripId', ParseIntPipe) tripId: number,
+    @Param('dateId', ParseIntPipe) dateId: number,
+  ) {
+    return this.dates.getAvailability(tripId, dateId);
+  }
+
   @Post()
   @Roles('Admin')
   @ApiOperation({ summary: 'Create a trip date (Admin, pending Backend 1)' })

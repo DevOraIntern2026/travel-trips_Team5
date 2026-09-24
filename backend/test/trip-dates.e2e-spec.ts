@@ -262,6 +262,30 @@ describe('TripDates (e2e)', () => {
       .expect(404);
   });
 
+  it('GET availability reports computed seats', async () => {
+    const created = await db.orm.public.TripDate.create({
+      tripId,
+      ...datePayload({ capacity: 30 }),
+    });
+
+    // Noop provider reports 0 booked: everything remains.
+    const res = await request(app.getHttpServer())
+      .get(`/api/v1/trips/${tripId}/dates/${created.id}/availability`)
+      .expect(200);
+    expect(res.body).toEqual({
+      tripId,
+      dateId: created.id,
+      capacity: 30,
+      bookedSeats: 0,
+      remainingSeats: 30,
+      available: true,
+    });
+
+    await request(app.getHttpServer())
+      .get(`/api/v1/trips/${tripId}/dates/999999/availability`)
+      .expect(404);
+  });
+
   it('rejects non-numeric ids with 400', async () => {
     await request(app.getHttpServer())
       .get(`/api/v1/trips/${tripId}/dates/abc`)

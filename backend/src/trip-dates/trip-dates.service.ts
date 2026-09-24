@@ -60,6 +60,15 @@ function isCheckViolation(error: unknown): boolean {
   );
 }
 
+export interface TripDateAvailability {
+  tripId: number;
+  dateId: number;
+  capacity: number;
+  bookedSeats: number;
+  remainingSeats: number;
+  available: boolean;
+}
+
 @Injectable()
 export class TripDatesService {
   constructor(
@@ -204,6 +213,29 @@ export class TripDatesService {
       );
     }
     return toResponse(updated);
+  }
+
+  /**
+   * Computed availability — nothing is stored. remainingSeats is derived as
+   * capacity minus confirmed booked seats (Backend 3's counts via the port;
+   * 0 until the real provider lands), clamped at 0 so overbooking data can
+   * never surface a negative remainder.
+   */
+  async getAvailability(
+    tripId: number,
+    dateId: number,
+  ): Promise<TripDateAvailability> {
+    const date = await this.findOne(tripId, dateId);
+    const bookedSeats = await this.bookedSeats.getConfirmedBookedSeats(dateId);
+    const remainingSeats = Math.max(0, date.capacity - bookedSeats);
+    return {
+      tripId,
+      dateId,
+      capacity: date.capacity,
+      bookedSeats,
+      remainingSeats,
+      available: remainingSeats > 0,
+    };
   }
 
   /**
