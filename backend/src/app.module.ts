@@ -7,6 +7,7 @@ import { AppService } from './app.service.js';
 import { DestinationsModule } from './destinations/destinations.module.js';
 import { TripsModule } from './trips/trips.module.js';
 import { TripDatesModule } from './trip-dates/trip-dates.module.js';
+import { BookingsModule } from './bookings/bookings.module.js';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -37,6 +38,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     DestinationsModule,
     TripsModule,
     TripDatesModule,
+    BookingsModule,
   ],
   controllers: [AppController],
   providers: [
