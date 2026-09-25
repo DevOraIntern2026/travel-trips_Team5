@@ -4,12 +4,14 @@ import { App } from 'supertest/types';
 import { db } from './../src/prisma/db.js';
 import { clearAllTables } from './helpers/db-cleanup.js';
 import { createTestApp } from './helpers/test-app.js';
+import { authHeaderFor } from './helpers/auth.js';
 
 describe('Bookings (e2e)', () => {
   let app: INestApplication<App>;
   let tripId: number;
   let tripDateId: number;
   let customerId: number;
+  let customerAuth: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -17,11 +19,9 @@ describe('Bookings (e2e)', () => {
 
   beforeEach(async () => {
     await clearAllTables();
-    const customer = await db.orm.public.User.create({
-      id: 1,
-      email: 'customer@example.com'
-    });
-    customerId = customer.id;
+    customerAuth = await authHeaderFor({ email: 'customer@example.com', role: 'Customer' });
+    const customer = await db.orm.public.User.where({ email: 'customer@example.com' }).first();
+    customerId = customer!.id;
 
     const destination = await db.orm.public.Destination.create({
       name: 'Cairo',
@@ -60,6 +60,7 @@ describe('Bookings (e2e)', () => {
   it('POST /bookings creates a booking and reduces capacity', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/bookings')
+      .set('Authorization', customerAuth)
       .send({ tripDateId })
       .expect(201);
 
@@ -78,6 +79,7 @@ describe('Bookings (e2e)', () => {
 
     const res = await request(app.getHttpServer())
       .post('/api/v1/bookings')
+      .set('Authorization', customerAuth)
       .send({ tripDateId })
       .expect(409);
 
@@ -87,6 +89,7 @@ describe('Bookings (e2e)', () => {
   it('POST /bookings/:id/cancel cancels the booking and frees a seat', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/bookings')
+      .set('Authorization', customerAuth)
       .send({ tripDateId })
       .expect(201);
     
@@ -94,6 +97,7 @@ describe('Bookings (e2e)', () => {
 
     const cancelRes = await request(app.getHttpServer())
       .post(`/api/v1/bookings/${bookingId}/cancel`)
+      .set('Authorization', customerAuth)
       .expect(201);
 
     expect(cancelRes.body.data.status).toBe('Cancelled');
@@ -135,6 +139,7 @@ describe('Bookings (e2e)', () => {
 
     const cancelRes = await request(app.getHttpServer())
       .post(`/api/v1/bookings/${booking.id}/cancel`)
+      .set('Authorization', customerAuth)
       .expect(409);
 
     expect(cancelRes.body.message).toMatch(/Cancellation window has passed/);

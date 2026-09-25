@@ -22,6 +22,8 @@ model User {
   authTokens      AuthToken[]
   createdAt       TimestamptzString @default(now())
   updatedAt       temporal.updatedAtString()
+
+  @@index([operatorId])
 }
 
 enum UserRole {
@@ -56,6 +58,9 @@ model RefreshSession {
   revokedAt  TimestamptzString?
   createdAt  TimestamptzString @default(now())
   updatedAt  temporal.updatedAtString()
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model AuthToken {
@@ -68,6 +73,9 @@ model AuthToken {
   consumedAt TimestamptzString?
   createdAt  TimestamptzString @default(now())
   updatedAt  temporal.updatedAtString()
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Post {
@@ -78,6 +86,8 @@ model Post {
   authorId  Int
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
+
+  @@index([authorId])
 }
 
 model Destination {
@@ -106,6 +116,9 @@ model Trip {
   cancellationWindowHours Int @default(24)
   createdAt     TimestamptzString @default(now())
   updatedAt     temporal.updatedAtString()
+
+  @@index([destinationId])
+  @@index([operatorId])
 }
 
 model TripDate {
@@ -126,6 +139,9 @@ model TripDate {
   @@check(expression: "capacity > 0", name: "tripdate_capacity_positive")
   @@check(expression: "\"endDate\" >= \"startDate\"", name: "tripdate_end_after_start")
   @@check(expression: "\"capacity\" >= \"bookedSeats\"", name: "tripdate_capacity_check")
+
+  @@index([tripId])
+  @@index([startDate, endDate])
 }
 
 model Booking {
@@ -140,4 +156,8 @@ model Booking {
   price      Decimal
   createdAt  TimestamptzString @default(now())
   updatedAt  temporal.updatedAtString()
+
+  @@index([customerId])
+  @@index([tripId])
+  @@index([tripDateId])
 }
