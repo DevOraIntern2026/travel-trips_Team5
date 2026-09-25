@@ -1,34 +1,32 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
-
-const trim = ({ value }: { value: unknown }): unknown =>
-  typeof value === 'string' ? value.trim() : value;
+import { trimString } from '../../common/transforms.js';
 
 export class UpdateDestinationDto {
   @ApiPropertyOptional({ example: 'Cairo', maxLength: 120 })
-  @Transform(trim)
+  @Transform(trimString)
   @IsOptional()
   @IsString()
   @MaxLength(120)
   name?: string;
 
   @ApiPropertyOptional({ maxLength: 2000 })
-  @Transform(trim)
+  @Transform(trimString)
   @IsOptional()
   @IsString()
   @MaxLength(2000)
   description?: string;
 
   @ApiPropertyOptional({ example: 'Cairo', maxLength: 120 })
-  @Transform(trim)
+  @Transform(trimString)
   @IsOptional()
   @IsString()
   @MaxLength(120)
   city?: string;
 
   @ApiPropertyOptional({ example: 'Egypt', maxLength: 120 })
-  @Transform(trim)
+  @Transform(trimString)
   @IsOptional()
   @IsString()
   @MaxLength(120)

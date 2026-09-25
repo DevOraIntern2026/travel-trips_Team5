@@ -9,5 +9,7 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.spec.ts'],
+    // .kilo holds tool worktree checkouts (possibly stale); never test them.
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.kilo/**'],
   },
 });

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RolesGuard } from '../auth/roles.guard.js';
+import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { DestinationsController } from './destinations.controller.js';
 import { DestinationsService } from './destinations.service.js';
 

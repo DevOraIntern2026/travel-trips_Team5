@@ -7,7 +7,7 @@ import {
   Patch,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Roles } from '../auth/roles.decorator.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
 import { AssignOperatorDto } from './dto/assign-operator.dto.js';
 import { TripsService } from './trips.service.js';
 

@@ -1,13 +1,67 @@
 // use prisma-8
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  username  String?
-  name      String?
-  posts     Post[]
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  passwordHash    String?
+  username        String?
+  name            String?
+  role            UserRole  @default(Customer)
+  operatorId      Int?
+  operator        Operator? @relation(fields: [operatorId], references: [id])
+  emailVerifiedAt TimestamptzString?
+  isActive        Boolean   @default(true)
+  posts           Post[]
+  refreshSessions RefreshSession[]
+  authTokens      AuthToken[]
+  createdAt       TimestamptzString @default(now())
+  updatedAt       temporal.updatedAtString()
+}
+
+enum UserRole {
+  @@type("pg/text@1")
+  Admin    = "admin"
+  Operator = "operator"
+  Customer = "customer"
+}
+
+enum AuthTokenPurpose {
+  @@type("pg/text@1")
+  VerifyEmail   = "verify-email"
+  ResetPassword = "reset-password"
+}
+
+model Operator {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  users       User[]
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+}
+
+model RefreshSession {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  tokenHash  String   @unique
+  expiresAt  TimestamptzString
+  revokedAt  TimestamptzString?
+  createdAt  TimestamptzString @default(now())
+  updatedAt  temporal.updatedAtString()
+}
+
+model AuthToken {
+  id         Int              @id @default(autoincrement())
+  userId     Int
+  user       User             @relation(fields: [userId], references: [id])
+  purpose    AuthTokenPurpose
+  tokenHash  String           @unique
+  expiresAt  TimestamptzString
+  consumedAt TimestamptzString?
+  createdAt  TimestamptzString @default(now())
+  updatedAt  temporal.updatedAtString()
 }
 
 model Post {
@@ -41,6 +95,24 @@ model Trip {
   description   String?
   durationDays  Int
   isActive      Boolean     @default(true)
+  dates         TripDate[]
   createdAt     TimestamptzString @default(now())
   updatedAt     temporal.updatedAtString()
+}
+
+model TripDate {
+  id        Int      @id @default(autoincrement())
+  tripId    Int
+  trip      Trip     @relation(fields: [tripId], references: [id])
+  startDate TimestamptzString
+  endDate   TimestamptzString
+  price     Decimal
+  capacity  Int
+  isActive  Boolean  @default(true)
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@check(expression: "price >= 0", name: "tripdate_price_non_negative")
+  @@check(expression: "capacity > 0", name: "tripdate_capacity_positive")
+  @@check(expression: "\"endDate\" >= \"startDate\"", name: "tripdate_end_after_start")
 }

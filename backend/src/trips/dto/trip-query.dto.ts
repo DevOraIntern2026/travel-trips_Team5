@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -12,6 +13,9 @@ import {
 export const DEFAULT_TRIPS_PAGE = 1;
 export const DEFAULT_TRIPS_LIMIT = 10;
 export const MAX_TRIPS_LIMIT = 50;
+
+export const TRIP_SORTS = ['price_asc', 'price_desc', 'date_asc'] as const;
+export type TripSort = (typeof TRIP_SORTS)[number];
 
 export class TripQueryDto {
   @ApiPropertyOptional({ example: 1, default: DEFAULT_TRIPS_PAGE })
@@ -51,4 +55,14 @@ export class TripQueryDto {
   @IsInt()
   @Min(1)
   operatorId?: number;
+
+  @ApiPropertyOptional({
+    example: 'price_asc',
+    enum: TRIP_SORTS,
+    description:
+      'Sort by lowest date price, highest date price, or earliest date.',
+  })
+  @IsOptional()
+  @IsIn(TRIP_SORTS)
+  sort?: TripSort;
 }
