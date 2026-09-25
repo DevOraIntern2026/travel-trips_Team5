@@ -46,7 +46,7 @@ describe('TripDates (e2e)', () => {
 
   beforeEach(async () => {
     await clearAllTables();
-    adminAuth = await adminHeader(app);
+    adminAuth = await adminHeader();
     tripId = (await seedTrip()).id;
     inactiveTripId = (await seedTrip(false)).id;
   });
@@ -311,7 +311,7 @@ describe('TripDates capacity vs bookings (e2e, seam override)', () => {
 
   beforeEach(async () => {
     await clearAllTables();
-    adminAuth = await adminHeader(app);
+    adminAuth = await adminHeader();
     tripId = (await seedTrip()).id;
     dateId = (
       await db.orm.public.TripDate.create({

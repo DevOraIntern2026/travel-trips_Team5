@@ -6,8 +6,10 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { DestinationsModule } from './destinations/destinations.module.js';
+import { OperatorsModule } from './operators/operators.module.js';
 import { TripsModule } from './trips/trips.module.js';
 import { TripDatesModule } from './trip-dates/trip-dates.module.js';
+import { UsersModule } from './users/users.module.js';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -39,6 +41,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     TripsModule,
     TripDatesModule,
     AuthModule,
+    UsersModule,
+    OperatorsModule,
   ],
   controllers: [AppController],
   providers: [

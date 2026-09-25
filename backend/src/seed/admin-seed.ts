@@ -7,8 +7,7 @@ export interface SeedAdminOptions {
 }
 
 export type SeedAdminResult =
-  | { status: 'created'; id: number }
-  | { status: 'exists'; id: number };
+  { status: 'created'; id: number } | { status: 'exists'; id: number };
 
 /**
  * Creates the initial admin account. Safe to re-run: an existing email is

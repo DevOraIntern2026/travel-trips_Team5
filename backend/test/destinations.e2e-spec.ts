@@ -16,7 +16,7 @@ describe('Destinations (e2e)', () => {
 
   beforeEach(async () => {
     await clearAllTables();
-    adminAuth = await adminHeader(app);
+    adminAuth = await adminHeader();
   });
 
   afterAll(async () => {

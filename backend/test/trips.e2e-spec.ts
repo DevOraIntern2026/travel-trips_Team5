@@ -18,7 +18,7 @@ describe('Trips (e2e)', () => {
 
   beforeEach(async () => {
     await clearAllTables();
-    adminAuth = await adminHeader(app);
+    adminAuth = await adminHeader();
     const destination = await db.orm.public.Destination.create({
       name: 'Cairo',
       city: 'Cairo',

@@ -346,7 +346,7 @@ export class AuthService {
   }
 }
 
-function toSafeUser(row: DbUser): SafeUser {
+export function toSafeUser(row: DbUser): SafeUser {
   return {
     id: row.id,
     email: row.email,
