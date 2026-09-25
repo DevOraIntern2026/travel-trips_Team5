@@ -1,0 +1,544 @@
+openapi: 3.0.3
+
+info:
+  title: DevOra Travel API
+  description: Authentication and User Management APIs
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: Authentication and account management
+  - name: Users
+    description: User profile and user management
+
+paths:  /api/v1/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new customer account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  example: Ammar Shousha
+                email:
+                  type: string
+                  format: email
+                  example: ammar@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  maxLength: 128
+                  example: Password123
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Validation error
+        '409':
+          description: Email already exists
+
+            /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login with email and password
+      description: Authenticates a user and returns access and refresh tokens.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: ammar@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  maxLength: 128
+                  example: Password123
+      responses:
+        '200':
+          description: Login successful
+        '400':
+          description: Validation error
+        '401':
+          description: Invalid email or password
+
+            /api/v1/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh authentication tokens
+      description: Generates a new access token and refresh token using a valid refresh token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIs...
+      responses:
+        '200':
+          description: Token refreshed successfully
+        '400':
+          description: Validation error
+        '401':
+          description: Invalid or expired refresh token
+
+            /api/v1/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout current user
+      description: Logs out the authenticated user and invalidates the current refresh token.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+        '401':
+          description: Unauthorized
+
+       /api/v1/auth/change-password:
+    post:
+      tags:
+        - Authentication
+      summary: Change current user password
+      description: Changes the password of the authenticated user.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                  format: password
+                  minLength: 8
+                  maxLength: 128
+                  example: OldPassword123
+                newPassword:
+                  type: string
+                  format: password
+                  minLength: 8
+                  maxLength: 128
+                  example: NewPassword123
+      responses:
+        '200':
+          description: Password changed successfully
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized or current password is incorrect
+
+            /api/v1/auth/forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: Request password reset
+      description: Generates a password reset token for the provided email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: ammar@example.com
+      responses:
+        '200':
+          description: Password reset request processed
+        '400':
+          description: Validation error
+
+  /api/v1/auth/reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password
+      description: Resets the user's password using a valid password reset token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - newPassword
+              properties:
+                token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIs...
+                newPassword:
+                  type: string
+                  format: password
+                  minLength: 8
+                  maxLength: 128
+                  example: NewPassword123
+      responses:
+        '200':
+          description: Password reset successfully
+        '400':
+          description: Invalid or expired reset token
+
+  /api/v1/auth/verify-email:
+    post:
+      tags:
+        - Authentication
+      summary: Verify email address
+      description: Verifies a user's email address using a valid verification token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIs...
+      responses:
+        '200':
+          description: Email verified successfully
+        '400':
+          description: Invalid or expired verification token
+
+  /api/v1/auth/resend-verification:
+    post:
+      tags:
+        - Authentication
+      summary: Resend email verification
+      description: Generates a new email verification token for the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: ammar@example.com
+      responses:
+        '200':
+          description: Verification request processed
+        '400':
+          description: Validation error
+
+  /api/v1/auth/google:
+    post:
+      tags:
+        - Authentication
+      summary: Login with Google
+      description: Authenticates a user using a valid Google ID token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - idToken
+              properties:
+                idToken:
+                  type: string
+                  description: Google ID token obtained from Google OAuth.
+                  example: eyJhbGciOiJSUzI1NiIs...
+      responses:
+        '200':
+          description: Google authentication successful
+        '400':
+          description: Invalid Google ID token
+        '401':
+          description: Google account is not authorized
+
+            /api/v1/users/me:
+    get:
+      tags:
+        - Users
+      summary: Get current user profile
+      description: Returns the profile of the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user profile retrieved successfully
+        '401':
+          description: Unauthorized
+
+    put:
+      tags:
+        - Users
+      summary: Update current user profile
+      description: Updates the profile of the currently authenticated user.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  example: Ammar Shousha
+      responses:
+        '200':
+          description: Profile updated successfully
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+
+  /api/v1/users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Returns all users. Requires administrator privileges.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Users retrieved successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/v1/users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      description: Returns a specific user by their ID. Requires administrator privileges.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 6ab3b1608b2fb7397081f258
+      responses:
+        '200':
+          description: User retrieved successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User not found
+
+    put:
+      tags:
+        - Users
+      summary: Update user
+      description: Updates a user's profile, role, or status. Requires administrator privileges.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 6ab3b1608b2fb7397081f258
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  example: Ammar Shousha
+                role:
+                  type: string
+                  enum:
+                    - CUSTOMER
+                    - OPERATOR
+                    - ADMIN
+                  example: CUSTOMER
+                status:
+                  type: string
+                  enum:
+                    - ACTIVE
+                    - INACTIVE
+                    - BLOCKED
+                  example: ACTIVE
+      responses:
+        '200':
+          description: User updated successfully
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User not found
+
+  /api/v1/users/{userId}/status:
+    patch:
+      tags:
+        - Users
+      summary: Update user status
+      description: Updates the status of a specific user. Requires administrator privileges.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 6ab3b1608b2fb7397081f258
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - ACTIVE
+                    - INACTIVE
+                    - BLOCKED
+                  example: ACTIVE
+      responses:
+        '200':
+          description: User status updated successfully
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User not found
+
+
+          components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 6ab3b1608b2fb7397081f258
+        name:
+          type: string
+          example: Ammar Shousha
+        email:
+          type: string
+          format: email
+          example: ammar@example.com
+        role:
+          type: string
+          enum:
+            - CUSTOMER
+            - OPERATOR
+            - ADMIN
+          example: CUSTOMER
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - BLOCKED
+          example: ACTIVE
+        emailVerifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2026-09-24T10:30:00Z
+        createdAt:
+          type: string
+          format: date-time
+          example: 2026-09-24T10:00:00Z
+        updatedAt:
+          type: string
+          format: date-time
+          example: 2026-09-24T10:30:00Z
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIs...
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIs...
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Operation completed successfully
