@@ -106,9 +106,9 @@ export class TripsController {
 
   @Get(':tripId/operator')
   @Public()
-  @ApiOperation({ summary: 'Get the operator assigned to a trip' })
+  @ApiOperation({ summary: 'Get the company assigned to a trip' })
   @ApiParam({ name: 'tripId', example: 1 })
-  @ApiResponse({ status: 200, description: 'The assigned operator id.' })
+  @ApiResponse({ status: 200, description: 'The assigned company.' })
   @ApiResponse({
     status: 404,
     description: 'Trip not found or no operator assigned.',

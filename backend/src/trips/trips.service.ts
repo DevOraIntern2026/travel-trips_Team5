@@ -51,7 +51,10 @@ export interface PaginatedTripDetails {
 }
 
 export interface TripOperator {
-  operatorId: number;
+  id: number;
+  name: string;
+  description: string | null;
+  isActive: boolean;
 }
 
 export interface TripSearchCriteria {
@@ -408,6 +411,9 @@ export class TripsService {
 
   async create(dto: CreateTripDto): Promise<Trip> {
     await this.assertActiveDestination(dto.destinationId);
+    if (dto.operatorId != null) {
+      await this.assertActiveOperator(dto.operatorId);
+    }
 
     const created = await db.orm.public.Trip.create({
       destinationId: dto.destinationId,
@@ -426,6 +432,9 @@ export class TripsService {
 
     if (dto.destinationId !== undefined) {
       await this.assertActiveDestination(dto.destinationId);
+    }
+    if (dto.operatorId !== undefined && dto.operatorId !== null) {
+      await this.assertActiveOperator(dto.operatorId);
     }
 
     const name = dto.name?.trim() ? dto.name.trim() : undefined;
@@ -484,6 +493,11 @@ export class TripsService {
     return this.requireById(tripId);
   }
 
+  /**
+   * Returns the assigned company. Returned as-is even if the company was
+   * since deactivated: the assignment is historical fact, and deactivation
+   * never unassigns trips.
+   */
   async getOperator(tripId: number): Promise<TripOperator> {
     const trip = await this.findOne(tripId);
     if (trip.operatorId === null) {
@@ -491,15 +505,25 @@ export class TripsService {
         `No operator assigned to trip with id ${tripId}`,
       );
     }
-    return { operatorId: trip.operatorId };
+    const operator = await db.orm.public.Operator.first({
+      id: trip.operatorId,
+    });
+    if (!operator) {
+      throw new NotFoundException(
+        `Operator with id ${trip.operatorId} not found`,
+      );
+    }
+    return {
+      id: operator.id,
+      name: operator.name,
+      description: operator.description,
+      isActive: operator.isActive,
+    };
   }
 
-  /**
-   * TODO(backend-1): validate that the operator exists once the Operator
-   * module lands. Until then any positive int is accepted.
-   */
   async assignOperator(tripId: number, dto: AssignOperatorDto): Promise<Trip> {
     await this.requireById(tripId);
+    await this.assertActiveOperator(dto.operatorId);
     await db.orm.public.Trip.where({ id: tripId }).update({
       operatorId: dto.operatorId,
     });
@@ -543,6 +567,17 @@ export class TripsService {
       throw new NotFoundException(
         `Destination with id ${destinationId} not found`,
       );
+    }
+  }
+
+  /**
+   * Inactive operators are invisible: trips can only point at companies
+   * that public GETs would return.
+   */
+  private async assertActiveOperator(operatorId: number): Promise<void> {
+    const operator = await db.orm.public.Operator.first({ id: operatorId });
+    if (!operator || !operator.isActive) {
+      throw new NotFoundException(`Operator with id ${operatorId} not found`);
     }
   }
 }

@@ -11,6 +11,7 @@ describe('Trips (e2e)', () => {
   let adminAuth: string;
   let destinationId: number;
   let inactiveDestinationId: number;
+  let companyId: number;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -34,6 +35,7 @@ describe('Trips (e2e)', () => {
       isActive: false,
     });
     inactiveDestinationId = inactive.id;
+    companyId = (await db.orm.public.Operator.create({ name: 'Nile Co' })).id;
   });
 
   afterAll(async () => {
@@ -115,12 +117,22 @@ describe('Trips (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/trips')
       .set('Authorization', adminAuth)
-      .send(createPayload({ operatorId: 7, description: 'Sail the Nile' }))
+      .send(
+        createPayload({ operatorId: companyId, description: 'Sail the Nile' }),
+      )
       .expect(201);
 
     expect(res.body.id).toEqual(expect.any(Number));
-    expect(res.body.operatorId).toBe(7);
+    expect(res.body.operatorId).toBe(companyId);
     expect(res.body.destination.id).toBe(destinationId);
+  });
+
+  it('POST /api/v1/trips rejects unknown operators', async () => {
+    await request(app.getHttpServer())
+      .post('/api/v1/trips')
+      .set('Authorization', adminAuth)
+      .send(createPayload({ operatorId: 999999 }))
+      .expect(404);
   });
 
   it('POST /api/v1/trips validates input', async () => {
@@ -225,7 +237,7 @@ describe('Trips (e2e)', () => {
 
   it('GET /api/v1/trips/:id/operator reports the assignment', async () => {
     const created = await db.orm.public.Trip.create(
-      createPayload({ operatorId: 7 }),
+      createPayload({ operatorId: companyId }),
     );
     const unassigned = await db.orm.public.Trip.create(
       createPayload({ name: 'Desert safari' }),
@@ -234,7 +246,12 @@ describe('Trips (e2e)', () => {
     const res = await request(app.getHttpServer())
       .get(`/api/v1/trips/${created.id}/operator`)
       .expect(200);
-    expect(res.body).toEqual({ operatorId: 7 });
+    expect(res.body).toEqual({
+      id: companyId,
+      name: 'Nile Co',
+      description: null,
+      isActive: true,
+    });
 
     await request(app.getHttpServer())
       .get(`/api/v1/trips/${unassigned.id}/operator`)
@@ -251,14 +268,14 @@ describe('Trips (e2e)', () => {
     const assigned = await request(app.getHttpServer())
       .patch(`/api/v1/admin/trips/${created.id}/operator`)
       .set('Authorization', adminAuth)
-      .send({ operatorId: 7 })
+      .send({ operatorId: companyId })
       .expect(200);
-    expect(assigned.body.operatorId).toBe(7);
+    expect(assigned.body.operatorId).toBe(companyId);
 
     await request(app.getHttpServer())
       .patch('/api/v1/admin/trips/999999/operator')
       .set('Authorization', adminAuth)
-      .send({ operatorId: 7 })
+      .send({ operatorId: companyId })
       .expect(404);
 
     await request(app.getHttpServer())
@@ -266,6 +283,12 @@ describe('Trips (e2e)', () => {
       .set('Authorization', adminAuth)
       .send({})
       .expect(400);
+
+    await request(app.getHttpServer())
+      .patch(`/api/v1/admin/trips/${created.id}/operator`)
+      .set('Authorization', adminAuth)
+      .send({ operatorId: 999999 })
+      .expect(404);
 
     const unassigned = await request(app.getHttpServer())
       .delete(`/api/v1/admin/trips/${created.id}/operator`)
@@ -281,14 +304,14 @@ describe('Trips (e2e)', () => {
   });
 
   it('GET /api/v1/operators/:id/trips lists assigned trips', async () => {
-    await db.orm.public.Trip.create(createPayload({ operatorId: 7 }));
+    await db.orm.public.Trip.create(createPayload({ operatorId: companyId }));
     await db.orm.public.Trip.create(
-      createPayload({ name: 'Desert safari', operatorId: 7 }),
+      createPayload({ name: 'Desert safari', operatorId: companyId }),
     );
     await db.orm.public.Trip.create(createPayload({ name: 'Red Sea dive' }));
 
     const res = await request(app.getHttpServer())
-      .get('/api/v1/operators/7/trips')
+      .get(`/api/v1/operators/${companyId}/trips`)
       .expect(200);
     expect(res.body.meta.total).toBe(2);
 
