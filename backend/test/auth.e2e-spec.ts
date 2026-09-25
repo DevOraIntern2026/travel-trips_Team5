@@ -296,4 +296,20 @@ describe('Auth (e2e)', () => {
     // Public reads still need no token.
     await request(app.getHttpServer()).get('/api/v1/destinations').expect(200);
   });
+
+  it('exposes auth routes and the bearer scheme in OpenAPI JSON', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/api/v1-json')
+      .expect(200);
+
+    expect(res.body.paths['/api/v1/auth/login']).toBeDefined();
+    expect(res.body.paths['/api/v1/auth/register']).toBeDefined();
+    expect(
+      res.body.paths['/api/v1/auth/change-password'].post.security,
+    ).toBeDefined();
+    expect(res.body.components.securitySchemes.bearer.type).toBe('http');
+    expect(res.body.components.schemas.AuthSessionResponse.required).toContain(
+      'accessToken',
+    );
+  });
 });

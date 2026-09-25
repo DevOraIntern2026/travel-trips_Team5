@@ -6,6 +6,7 @@ import {
 } from '@nestjs/throttler';
 import { App } from 'supertest/types';
 import { AppModule } from '../../src/app.module.js';
+import { setupSwagger } from '../../src/swagger.js';
 
 type ModuleBuilder = ReturnType<typeof Test.createTestingModule>;
 
@@ -48,6 +49,7 @@ export async function createTestApp(
   const app = moduleFixture.createNestApplication();
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  setupSwagger(app);
   await app.init();
   return app;
 }
