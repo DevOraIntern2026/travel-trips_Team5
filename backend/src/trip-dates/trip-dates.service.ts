@@ -19,7 +19,7 @@ import {
 import type { CreateTripDateDto } from './dto/create-trip-date.dto.js';
 import type { UpdateTripDateDto } from './dto/update-trip-date.dto.js';
 
-export type TripDateRow = Omit<Models.public_TripDate, 'trip'>;
+export type TripDateRow = Omit<Models.public_TripDate, 'trip' | 'bookings'>;
 
 /**
  * API shape: price is a JSON number. Storage is numeric(10,2) and reads back

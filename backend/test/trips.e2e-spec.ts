@@ -216,7 +216,7 @@ describe('Trips (e2e)', () => {
       tripId: created.id,
       startDate: '2026-10-01T10:00:00.000Z',
       endDate: '2026-10-05T18:00:00.000Z',
-      price: 99.99,
+      price: '99.99',
       capacity: 20,
     });
 
@@ -367,7 +367,7 @@ describe('Trips (e2e)', () => {
       tripId: t1.id,
       startDate: '2026-10-01T10:00:00.000Z',
       endDate: '2026-10-05T18:00:00.000Z',
-      price: 99.99,
+      price: '99.99',
       capacity: 20,
     });
     const t2 = await db.orm.public.Trip.create(
@@ -377,7 +377,7 @@ describe('Trips (e2e)', () => {
       tripId: t2.id,
       startDate: '2026-11-01T10:00:00.000Z',
       endDate: '2026-11-05T18:00:00.000Z',
-      price: 500,
+      price: '500',
       capacity: 10,
     });
     await db.orm.public.Trip.create(createPayload({ name: 'Dateless wander' }));
@@ -424,7 +424,7 @@ describe('Trips (e2e)', () => {
       tripId: cheap.id,
       startDate: '2026-10-01T10:00:00.000Z',
       endDate: '2026-10-05T18:00:00.000Z',
-      price: 99.99,
+      price: '99.99',
       capacity: 20,
     });
     const pricey = await db.orm.public.Trip.create(
@@ -434,7 +434,7 @@ describe('Trips (e2e)', () => {
       tripId: pricey.id,
       startDate: '2026-09-01T10:00:00.000Z',
       endDate: '2026-09-05T18:00:00.000Z',
-      price: 500,
+      price: '500',
       capacity: 10,
     });
     await db.orm.public.Trip.create(createPayload({ name: 'Dateless wander' }));
@@ -442,7 +442,7 @@ describe('Trips (e2e)', () => {
     const asc = await request(app.getHttpServer())
       .get('/api/v1/trips?sort=price_asc')
       .expect(200);
-    expect(asc.body.data.map((t) => t.name)).toEqual([
+    expect(asc.body.data.map((t: any) => t.name)).toEqual([
       'Nile cruise',
       'Red Sea dive',
       'Dateless wander',
@@ -451,7 +451,7 @@ describe('Trips (e2e)', () => {
     const desc = await request(app.getHttpServer())
       .get('/api/v1/trips?sort=price_desc')
       .expect(200);
-    expect(desc.body.data.map((t) => t.name)).toEqual([
+    expect(desc.body.data.map((t: any) => t.name)).toEqual([
       'Red Sea dive',
       'Nile cruise',
       'Dateless wander',
@@ -460,7 +460,7 @@ describe('Trips (e2e)', () => {
     const byDate = await request(app.getHttpServer())
       .get('/api/v1/trips?sort=date_asc')
       .expect(200);
-    expect(byDate.body.data.map((t) => t.name)).toEqual([
+    expect(byDate.body.data.map((t: any) => t.name)).toEqual([
       'Red Sea dive',
       'Nile cruise',
       'Dateless wander',

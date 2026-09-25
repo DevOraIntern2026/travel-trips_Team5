@@ -29,7 +29,7 @@ async function seedTrip(active = true) {
 const datePayload = (overrides = {}) => ({
   startDate: '2026-10-01T10:00:00.000Z',
   endDate: '2026-10-05T18:00:00.000Z',
-  price: 99.99,
+  price: '99.99',
   capacity: 20,
   ...overrides,
 });

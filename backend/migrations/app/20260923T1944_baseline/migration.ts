@@ -6,6 +6,7 @@ import { Migration, MigrationCLI, col, fn, lit, primaryKey } from '@prisma/orm-p
 export default class M extends Migration<never, End> {
   override readonly endContractJson = endContract;
 
+  // @ts-ignore
   override get operations() {
     return [
       this.createSchema({ schema: 'public' }),
