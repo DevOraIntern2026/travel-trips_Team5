@@ -1,11 +1,17 @@
 // use prisma-8
 
+enum BookingStatus {
+  Confirmed
+  Cancelled
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   username  String?
   name      String?
   posts     Post[]
+  bookings  Booking[]
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
 }
@@ -42,6 +48,8 @@ model Trip {
   durationDays  Int
   isActive      Boolean     @default(true)
   dates         TripDate[]
+  bookings      Booking[]
+  cancellationWindowHours Int @default(24)
   createdAt     TimestamptzString @default(now())
   updatedAt     temporal.updatedAtString()
 }
@@ -55,10 +63,27 @@ model TripDate {
   price     Decimal
   capacity  Int
   isActive  Boolean  @default(true)
+  bookedSeats Int @default(0)
+  bookings  Booking[]
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
 
   @@check(expression: "price >= 0", name: "tripdate_price_non_negative")
   @@check(expression: "capacity > 0", name: "tripdate_capacity_positive")
   @@check(expression: "\"endDate\" >= \"startDate\"", name: "tripdate_end_after_start")
+  @@check(expression: "\"capacity\" >= \"bookedSeats\"", name: "tripdate_capacity_check")
+}
+
+model Booking {
+  id         Int      @id @default(autoincrement())
+  customerId Int
+  customer   User     @relation(fields: [customerId], references: [id])
+  tripId     Int
+  trip       Trip     @relation(fields: [tripId], references: [id])
+  tripDateId Int
+  tripDate   TripDate @relation(fields: [tripDateId], references: [id])
+  status     BookingStatus @default(Confirmed)
+  price      Decimal
+  createdAt  TimestamptzString @default(now())
+  updatedAt  temporal.updatedAtString()
 }
