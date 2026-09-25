@@ -28,7 +28,7 @@ async function seedTrip(active = true) {
 const datePayload = (overrides = {}) => ({
   startDate: '2026-10-01T10:00:00.000Z',
   endDate: '2026-10-05T18:00:00.000Z',
-  price: 99.99,
+  price: '99.99',
   capacity: 20,
   ...overrides,
 });
@@ -167,7 +167,7 @@ describe('TripDates (e2e)', () => {
     // More than 2 decimals.
     await request(app.getHttpServer())
       .post(`/api/v1/trips/${tripId}/dates`)
-      .send(datePayload({ price: 99.999 }))
+      .send(datePayload({ price: '99.999' }))
       .expect(400);
 
     // Bad date string.
@@ -197,7 +197,7 @@ describe('TripDates (e2e)', () => {
 
     const updated = await request(app.getHttpServer())
       .put(`/api/v1/trips/${tripId}/dates/${created.id}`)
-      .send({ price: 149.5, capacity: 15 })
+      .send({ price: '149.5', capacity: 15 })
       .expect(200);
     expect(updated.body.price).toBe(149.5);
 

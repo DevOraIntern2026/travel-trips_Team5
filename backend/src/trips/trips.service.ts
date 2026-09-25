@@ -28,10 +28,10 @@ export type TripDestination = Omit<Models.public_Destination, 'trips'>;
 // 'destination' is nullable in the type (LEFT JOIN semantics) even though the
 // FK guarantees a row in practice. Omit 'trips': never included on the branch.
 // Omit 'dates': the back-relation is only populated via .include().
-export type Trip = Omit<Models.public_Trip, 'destination' | 'dates'> & {
+export type Trip = Omit<Models.public_Trip, 'destination' | 'dates' | 'bookings'> & {
   destination: TripDestination | null;
 };
-export type TripSummary = Omit<Models.public_Trip, 'destination' | 'dates'>;
+export type TripSummary = Omit<Models.public_Trip, 'destination' | 'dates' | 'bookings'>;
 
 export interface TripsMeta {
   page: number;

@@ -93,6 +93,7 @@ function trip(overrides: Partial<Trip> = {}): Trip {
     name: 'Nile cruise',
     description: null,
     durationDays: 3,
+    cancellationWindowHours: 24,
     isActive: true,
     createdAt: STAMP,
     updatedAt: STAMP,
@@ -126,7 +127,7 @@ function activeDestination() {
 describe('TripsService', () => {
   let service: TripsService;
   let bookedSeats: number;
-  let getConfirmedBookedSeats: ReturnType<typeof vi.fn>;
+  let getConfirmedBookedSeats: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -278,7 +279,7 @@ describe('TripsService', () => {
           tripId: 1,
           startDate: '2026-10-01T00:00:00.000Z',
           endDate: '2026-10-05T00:00:00.000Z',
-          price: '99.99',
+          price: 99.99,
           capacity: 20,
         },
         {
@@ -286,7 +287,7 @@ describe('TripsService', () => {
           tripId: 2,
           startDate: '2026-11-01T00:00:00.000Z',
           endDate: '2026-11-05T00:00:00.000Z',
-          price: '500.00',
+          price: 500.00,
           capacity: 10,
         },
       ]);
@@ -318,7 +319,7 @@ describe('TripsService', () => {
           tripId: 1,
           startDate: '2026-10-01T00:00:00.000Z',
           endDate: '2026-10-05T00:00:00.000Z',
-          price: '99.99',
+          price: 99.99,
           capacity: 20,
         },
         {
@@ -326,7 +327,7 @@ describe('TripsService', () => {
           tripId: 2,
           startDate: '2026-11-01T00:00:00.000Z',
           endDate: '2026-11-05T00:00:00.000Z',
-          price: '50.00',
+          price: 50.00,
           capacity: 25,
         },
       ]);
@@ -351,7 +352,7 @@ describe('TripsService', () => {
           tripId: 2,
           startDate: '2026-11-01T00:00:00.000Z',
           endDate: '2026-11-05T00:00:00.000Z',
-          price: '500.00',
+          price: 500.00,
           capacity: 10,
         },
         {
@@ -359,7 +360,7 @@ describe('TripsService', () => {
           tripId: 1,
           startDate: '2026-10-01T00:00:00.000Z',
           endDate: '2026-10-05T00:00:00.000Z',
-          price: '99.99',
+          price: 99.99,
           capacity: 20,
         },
       ]);
@@ -429,7 +430,7 @@ describe('TripsService', () => {
       const result = await service.findOne(1);
 
       expect(result.name).toBe('Nile cruise');
-      expect(result.destination.name).toBe('Cairo');
+      expect(result.destination!.name).toBe('Cairo');
     });
 
     it('throws NotFoundException when missing or inactive', async () => {
@@ -458,7 +459,7 @@ describe('TripsService', () => {
         name: 'Nile cruise',
         durationDays: 3,
       });
-      expect(result.destination.name).toBe('Cairo');
+      expect(result.destination!.name).toBe('Cairo');
     });
 
     it('throws NotFoundException for unknown destinations', async () => {
