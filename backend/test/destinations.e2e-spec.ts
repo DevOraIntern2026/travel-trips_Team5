@@ -2,11 +2,13 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { db } from './../src/prisma/db.js';
+import { adminHeader } from './helpers/auth.js';
 import { clearAllTables } from './helpers/db-cleanup.js';
 import { createTestApp } from './helpers/test-app.js';
 
 describe('Destinations (e2e)', () => {
   let app: INestApplication<App>;
+  let adminAuth: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -14,6 +16,7 @@ describe('Destinations (e2e)', () => {
 
   beforeEach(async () => {
     await clearAllTables();
+    adminAuth = await adminHeader();
   });
 
   afterAll(async () => {
@@ -102,6 +105,7 @@ describe('Destinations (e2e)', () => {
   it('POST /api/v1/destinations creates a destination', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/destinations')
+      .set('Authorization', adminAuth)
       .send(createPayload({ description: 'Nile city' }))
       .expect(201);
 
@@ -113,11 +117,13 @@ describe('Destinations (e2e)', () => {
   it('POST /api/v1/destinations rejects invalid bodies with 400', async () => {
     await request(app.getHttpServer())
       .post('/api/v1/destinations')
+      .set('Authorization', adminAuth)
       .send({ city: 'Cairo', country: 'Egypt' })
       .expect(400);
 
     await request(app.getHttpServer())
       .post('/api/v1/destinations')
+      .set('Authorization', adminAuth)
       .send({ name: '   ', city: 'Cairo', country: 'Egypt' })
       .expect(400);
   });
@@ -127,6 +133,7 @@ describe('Destinations (e2e)', () => {
 
     await request(app.getHttpServer())
       .post('/api/v1/destinations')
+      .set('Authorization', adminAuth)
       .send(createPayload({ name: 'cAiRo' }))
       .expect(409);
   });
@@ -139,17 +146,20 @@ describe('Destinations (e2e)', () => {
 
     const updated = await request(app.getHttpServer())
       .put(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
       .send({ city: 'Giza' })
       .expect(200);
     expect(updated.body.city).toBe('Giza');
 
     await request(app.getHttpServer())
       .put('/api/v1/destinations/999999')
+      .set('Authorization', adminAuth)
       .send({ city: 'Giza' })
       .expect(404);
 
     await request(app.getHttpServer())
       .put(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
       .send({ name: 'luxor' })
       .expect(409);
   });
@@ -162,6 +172,7 @@ describe('Destinations (e2e)', () => {
 
     const res = await request(app.getHttpServer())
       .put(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
       .send({ isActive: true })
       .expect(200);
     expect(res.body.isActive).toBe(true);
@@ -176,6 +187,7 @@ describe('Destinations (e2e)', () => {
 
     const res = await request(app.getHttpServer())
       .delete(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
       .expect(200);
     expect(res.body.isActive).toBe(false);
 
@@ -186,10 +198,12 @@ describe('Destinations (e2e)', () => {
 
     await request(app.getHttpServer())
       .delete(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
       .expect(200);
 
     await request(app.getHttpServer())
       .delete('/api/v1/destinations/999999')
+      .set('Authorization', adminAuth)
       .expect(404);
   });
 

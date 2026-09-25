@@ -1,21 +1,36 @@
 import { db } from '../../src/prisma/db.js';
 
-type TableName = 'booking' | 'user' | 'tripDate' | 'trip' | 'destination';
+type TableName =
+  | 'booking'
+  | 'authToken'
+  | 'refreshSession'
+  | 'user'
+  | 'operator'
+  | 'tripDate'
+  | 'trip'
+  | 'destination';
 
 async function clearTable(table: TableName, iterations = 1000) {
   // The ORM .delete() removes a single matching row per call, so loop until
   // the table is empty. Capped as a safety net against infinite loops.
   for (let i = 0; i < iterations; i++) {
+    const ns = db.orm.public;
     const deleted =
       table === 'booking'
-        ? await db.orm.public.Booking.where((b) => b.id.gte(0)).delete()
-        : table === 'user'
-        ? await db.orm.public.User.where((u) => u.id.gte(0)).delete()
-        : table === 'tripDate'
-        ? await db.orm.public.TripDate.where((d) => d.id.gte(0)).delete()
-        : table === 'trip'
-          ? await db.orm.public.Trip.where((t) => t.id.gte(0)).delete()
-          : await db.orm.public.Destination.where((d) => d.id.gte(0)).delete();
+        ? await ns.Booking.where((b) => b.id.gte(0)).delete()
+        : table === 'authToken'
+          ? await ns.AuthToken.where((t) => t.id.gte(0)).delete()
+          : table === 'refreshSession'
+            ? await ns.RefreshSession.where((s) => s.id.gte(0)).delete()
+            : table === 'user'
+              ? await ns.User.where((u) => u.id.gte(0)).delete()
+              : table === 'operator'
+                ? await ns.Operator.where((o) => o.id.gte(0)).delete()
+                : table === 'tripDate'
+                  ? await ns.TripDate.where((d) => d.id.gte(0)).delete()
+                  : table === 'trip'
+                    ? await ns.Trip.where((t) => t.id.gte(0)).delete()
+                    : await ns.Destination.where((d) => d.id.gte(0)).delete();
     if (!deleted || (Array.isArray(deleted) && deleted.length === 0)) {
       return;
     }
@@ -24,14 +39,16 @@ async function clearTable(table: TableName, iterations = 1000) {
 }
 
 /**
- * Empty all feature tables. Child-first: tripDate -> trip -> destination,
- * following the FK chain. Every e2e file calls this in beforeEach so files
- * stay independent regardless of execution order.
+ * Empty all feature tables. Child-first along every FK chain. Every e2e file
+ * calls this in beforeEach so files stay independent regardless of order.
  */
 export async function clearAllTables() {
   await clearTable('booking');
+  await clearTable('authToken');
+  await clearTable('refreshSession');
   await clearTable('tripDate');
   await clearTable('trip');
-  await clearTable('destination');
   await clearTable('user');
+  await clearTable('operator');
+  await clearTable('destination');
 }

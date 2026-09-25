@@ -3,6 +3,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { BOOKING_SEATS_PROVIDER } from './../src/bookings/booking-seats.port.js';
 import { db } from './../src/prisma/db.js';
+import { adminHeader } from './helpers/auth.js';
 import { clearAllTables } from './helpers/db-cleanup.js';
 import { createTestApp } from './helpers/test-app.js';
 
@@ -35,6 +36,7 @@ const datePayload = (overrides = {}) => ({
 
 describe('TripDates (e2e)', () => {
   let app: INestApplication<App>;
+  let adminAuth: string;
   let tripId: number;
   let inactiveTripId: number;
 
@@ -44,6 +46,7 @@ describe('TripDates (e2e)', () => {
 
   beforeEach(async () => {
     await clearAllTables();
+    adminAuth = await adminHeader();
     tripId = (await seedTrip()).id;
     inactiveTripId = (await seedTrip(false)).id;
   });
@@ -132,6 +135,7 @@ describe('TripDates (e2e)', () => {
   it('POST creates a date', async () => {
     const res = await request(app.getHttpServer())
       .post(`/api/v1/trips/${tripId}/dates`)
+      .set('Authorization', adminAuth)
       .send(datePayload())
       .expect(201);
 
@@ -144,6 +148,7 @@ describe('TripDates (e2e)', () => {
     // endDate before startDate.
     await request(app.getHttpServer())
       .post(`/api/v1/trips/${tripId}/dates`)
+      .set('Authorization', adminAuth)
       .send(
         datePayload({
           startDate: '2026-10-05T18:00:00.000Z',
@@ -155,24 +160,28 @@ describe('TripDates (e2e)', () => {
     // Negative price.
     await request(app.getHttpServer())
       .post(`/api/v1/trips/${tripId}/dates`)
+      .set('Authorization', adminAuth)
       .send(datePayload({ price: -5 }))
       .expect(400);
 
     // Zero capacity.
     await request(app.getHttpServer())
       .post(`/api/v1/trips/${tripId}/dates`)
+      .set('Authorization', adminAuth)
       .send(datePayload({ capacity: 0 }))
       .expect(400);
 
     // More than 2 decimals.
     await request(app.getHttpServer())
       .post(`/api/v1/trips/${tripId}/dates`)
-      .send(datePayload({ price: '99.999' }))
+      .set('Authorization', adminAuth)
+      .send(datePayload({ price: 99.999 }))
       .expect(400);
 
     // Bad date string.
     await request(app.getHttpServer())
       .post(`/api/v1/trips/${tripId}/dates`)
+      .set('Authorization', adminAuth)
       .send(datePayload({ startDate: 'not-a-date' }))
       .expect(400);
   });
@@ -180,11 +189,13 @@ describe('TripDates (e2e)', () => {
   it('POST rejects unknown or inactive trips', async () => {
     await request(app.getHttpServer())
       .post('/api/v1/trips/999999/dates')
+      .set('Authorization', adminAuth)
       .send(datePayload())
       .expect(404);
 
     await request(app.getHttpServer())
       .post(`/api/v1/trips/${inactiveTripId}/dates`)
+      .set('Authorization', adminAuth)
       .send(datePayload())
       .expect(404);
   });
@@ -197,22 +208,26 @@ describe('TripDates (e2e)', () => {
 
     const updated = await request(app.getHttpServer())
       .put(`/api/v1/trips/${tripId}/dates/${created.id}`)
-      .send({ price: '149.5', capacity: 15 })
+      .set('Authorization', adminAuth)
+      .send({ price: 149.5, capacity: 15 })
       .expect(200);
     expect(updated.body.price).toBe(149.5);
 
     await request(app.getHttpServer())
       .put(`/api/v1/trips/${tripId}/dates/${created.id}`)
+      .set('Authorization', adminAuth)
       .send({ endDate: '2026-09-01T00:00:00.000Z' })
       .expect(400);
 
     await request(app.getHttpServer())
       .put(`/api/v1/trips/${tripId}/dates/999999`)
+      .set('Authorization', adminAuth)
       .send({ capacity: 5 })
       .expect(404);
 
     const deactivated = await request(app.getHttpServer())
       .put(`/api/v1/trips/${tripId}/dates/${created.id}`)
+      .set('Authorization', adminAuth)
       .send({ isActive: false })
       .expect(200);
     expect(deactivated.body.isActive).toBe(false);
@@ -230,15 +245,18 @@ describe('TripDates (e2e)', () => {
 
     const res = await request(app.getHttpServer())
       .delete(`/api/v1/trips/${tripId}/dates/${created.id}`)
+      .set('Authorization', adminAuth)
       .expect(200);
     expect(res.body.isActive).toBe(false);
 
     await request(app.getHttpServer())
       .delete(`/api/v1/trips/${tripId}/dates/${created.id}`)
+      .set('Authorization', adminAuth)
       .expect(200);
 
     await request(app.getHttpServer())
       .delete(`/api/v1/trips/${tripId}/dates/999999`)
+      .set('Authorization', adminAuth)
       .expect(404);
   });
 
@@ -278,6 +296,7 @@ describe('TripDates (e2e)', () => {
 
 describe('TripDates capacity vs bookings (e2e, seam override)', () => {
   let app: INestApplication<App>;
+  let adminAuth: string;
   let tripId: number;
   let dateId: number;
 
@@ -292,6 +311,7 @@ describe('TripDates capacity vs bookings (e2e, seam override)', () => {
 
   beforeEach(async () => {
     await clearAllTables();
+    adminAuth = await adminHeader();
     tripId = (await seedTrip()).id;
     dateId = (
       await db.orm.public.TripDate.create({
@@ -308,11 +328,13 @@ describe('TripDates capacity vs bookings (e2e, seam override)', () => {
   it('PUT rejects capacity below booked seats with 409', async () => {
     await request(app.getHttpServer())
       .put(`/api/v1/trips/${tripId}/dates/${dateId}`)
+      .set('Authorization', adminAuth)
       .send({ capacity: 5 })
       .expect(409);
 
     const ok = await request(app.getHttpServer())
       .put(`/api/v1/trips/${tripId}/dates/${dateId}`)
+      .set('Authorization', adminAuth)
       .send({ capacity: 8 })
       .expect(200);
     expect(ok.body.capacity).toBe(8);

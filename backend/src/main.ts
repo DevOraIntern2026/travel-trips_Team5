@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { AppModule, ObserveInstrument } from './app.module.js';
+import { setupSwagger } from './swagger.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -16,6 +17,7 @@ async function bootstrap() {
     .setTitle('API Docs')
     .setDescription('The API description')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   
@@ -53,6 +55,7 @@ async function bootstrap() {
       transform: true, // Automatically transforms payloads to be objects typed according to their DTO classes
     }),
   );
+
 
 
   // Use the ConfigService to read variables from your .env file

@@ -39,6 +39,7 @@ const harness = vi.hoisted(() => {
   };
   const tripDateNamespace = { where: vi.fn(() => tripDateCollection) };
   const destinationNamespace = { first: vi.fn() };
+  const operatorNamespace = { first: vi.fn() };
   const txNamespace = { where: vi.fn(() => txCollection) };
   const txDestinationCollection = build();
   const txDestinationNamespace = {
@@ -61,6 +62,7 @@ const harness = vi.hoisted(() => {
         Trip: tripNamespace,
         TripDate: tripDateNamespace,
         Destination: destinationNamespace,
+        Operator: operatorNamespace,
       },
     },
     transaction: vi.fn((cb) => cb(txDb)),
@@ -71,6 +73,7 @@ const harness = vi.hoisted(() => {
     tripDateNamespace,
     tripDateCollection,
     destinationNamespace,
+    operatorNamespace,
     collection,
     txNamespace,
     txCollection,
@@ -481,11 +484,30 @@ describe('TripsService', () => {
         service.create({ destinationId: 10, name: 'X', durationDays: 1 }),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
+
+    it('throws NotFoundException for unknown operators', async () => {
+      harness.destinationNamespace.first.mockResolvedValue(activeDestination());
+      harness.operatorNamespace.first.mockResolvedValue(null);
+
+      await expect(
+        service.create({
+          destinationId: 10,
+          name: 'X',
+          durationDays: 1,
+          operatorId: 999,
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(harness.tripNamespace.create).not.toHaveBeenCalled();
+    });
   });
 
   describe('update', () => {
     it('updates fields and returns the trip', async () => {
       harness.collection.first.mockResolvedValue(trip());
+      harness.operatorNamespace.first.mockResolvedValue({
+        id: 7,
+        isActive: true,
+      });
       harness.collection.update.mockResolvedValue([{}]);
 
       const result = await service.update(1, {
@@ -506,6 +528,16 @@ describe('TripsService', () => {
 
       await expect(
         service.update(1, { destinationId: 999 }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(harness.collection.update).not.toHaveBeenCalled();
+    });
+
+    it('validates a new operator before assigning', async () => {
+      harness.collection.first.mockResolvedValue(trip());
+      harness.operatorNamespace.first.mockResolvedValue(null);
+
+      await expect(
+        service.update(1, { operatorId: 999 }),
       ).rejects.toBeInstanceOf(NotFoundException);
       expect(harness.collection.update).not.toHaveBeenCalled();
     });
@@ -569,12 +601,18 @@ describe('TripsService', () => {
   });
 
   describe('operator assignment', () => {
-    it('returns the assigned operator id', async () => {
-      harness.collection.first.mockResolvedValue(trip({ operatorId: 7 }));
+    const nileCo = {
+      id: 7,
+      name: 'Nile Co',
+      description: null,
+      isActive: true,
+    };
 
-      await expect(service.getOperator(1)).resolves.toEqual({
-        operatorId: 7,
-      });
+    it('returns the assigned company', async () => {
+      harness.collection.first.mockResolvedValue(trip({ operatorId: 7 }));
+      harness.operatorNamespace.first.mockResolvedValue(nileCo);
+
+      await expect(service.getOperator(1)).resolves.toEqual(nileCo);
     });
 
     it('throws NotFoundException when no operator is assigned', async () => {
@@ -585,8 +623,18 @@ describe('TripsService', () => {
       );
     });
 
+    it('throws NotFoundException for dangling assignments', async () => {
+      harness.collection.first.mockResolvedValue(trip({ operatorId: 7 }));
+      harness.operatorNamespace.first.mockResolvedValue(null);
+
+      await expect(service.getOperator(1)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
+
     it('assigns and unassigns operators', async () => {
       harness.collection.first.mockResolvedValue(trip({ operatorId: null }));
+      harness.operatorNamespace.first.mockResolvedValue(nileCo);
 
       await service.assignOperator(1, { operatorId: 7 });
       expect(harness.collection.update).toHaveBeenCalledWith({
@@ -617,6 +665,16 @@ describe('TripsService', () => {
       await expect(
         service.assignOperator(999, { operatorId: 7 }),
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('throws NotFoundException for unknown operators', async () => {
+      harness.collection.first.mockResolvedValue(trip({ operatorId: null }));
+      harness.operatorNamespace.first.mockResolvedValue(null);
+
+      await expect(
+        service.assignOperator(1, { operatorId: 999 }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(harness.collection.update).not.toHaveBeenCalled();
     });
   });
 });

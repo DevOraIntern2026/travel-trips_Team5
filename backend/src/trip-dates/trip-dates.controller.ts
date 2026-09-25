@@ -10,8 +10,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public } from '../auth/public.decorator.js';
-import { Roles } from '../auth/roles.decorator.js';
+import { Public } from '../auth/decorators/public.decorator.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
 import { CreateTripDateDto } from './dto/create-trip-date.dto.js';
 import { TripDateQueryDto } from './dto/trip-date-query.dto.js';
 import { UpdateTripDateDto } from './dto/update-trip-date.dto.js';
@@ -71,7 +71,7 @@ export class TripDatesController {
 
   @Post()
   @Roles('Admin')
-  @ApiOperation({ summary: 'Create a trip date (Admin, pending Backend 1)' })
+  @ApiOperation({ summary: 'Create a trip date (Admin)' })
   @ApiParam({ name: 'tripId', example: 1 })
   @ApiResponse({ status: 201, description: 'The created trip date.' })
   @ApiResponse({ status: 400, description: 'Validation failed.' })
@@ -85,7 +85,7 @@ export class TripDatesController {
 
   @Put(':dateId')
   @Roles('Admin')
-  @ApiOperation({ summary: 'Update a trip date (Admin, pending Backend 1)' })
+  @ApiOperation({ summary: 'Update a trip date (Admin)' })
   @ApiParam({ name: 'tripId', example: 1 })
   @ApiParam({ name: 'dateId', example: 10 })
   @ApiResponse({ status: 200, description: 'The updated trip date.' })
@@ -108,7 +108,7 @@ export class TripDatesController {
   @Delete(':dateId')
   @Roles('Admin')
   @ApiOperation({
-    summary: 'Deactivate a trip date (Admin, pending Backend 1)',
+    summary: 'Deactivate a trip date (Admin)',
   })
   @ApiParam({ name: 'tripId', example: 1 })
   @ApiParam({ name: 'dateId', example: 10 })

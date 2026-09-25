@@ -1,6 +1,6 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public } from '../auth/public.decorator.js';
+import { Public } from '../auth/decorators/public.decorator.js';
 import { TripQueryDto } from './dto/trip-query.dto.js';
 import { TripsService } from './trips.service.js';
 
