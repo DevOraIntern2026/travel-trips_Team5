@@ -7,6 +7,7 @@ import Trips from "../Pages/Trips/Trips";
 import Login from "../Pages/Login/Login";
 import NotFound from "../Pages/Notfound/NotFound";
 import Register from "../Pages/Register/Register";
+import Profile from "../Pages/Profile/Profile";
 
 export const router = createBrowserRouter([
  {
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
   {
     path:"/register",
     element: <Register/>,
+  },
+    {
+    path:"/profile",
+    element: <Profile/>,
   },
   {
     path: "/*",
