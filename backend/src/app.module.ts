@@ -4,8 +4,14 @@ import { envValidationSchema } from './config/env.validation.js';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { AuthModule } from './auth/auth.module.js';
 import { DestinationsModule } from './destinations/destinations.module.js';
+import { HealthModule } from './health/health.module.js';
+import { OperatorsModule } from './operators/operators.module.js';
 import { TripsModule } from './trips/trips.module.js';
+import { TripDatesModule } from './trip-dates/trip-dates.module.js';
+import { BookingsModule } from './bookings/bookings.module.js';
+import { UsersModule } from './users/users.module.js';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -35,6 +41,12 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     ]),
     DestinationsModule,
     TripsModule,
+    TripDatesModule,
+    BookingsModule,
+    AuthModule,
+    UsersModule,
+    OperatorsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [

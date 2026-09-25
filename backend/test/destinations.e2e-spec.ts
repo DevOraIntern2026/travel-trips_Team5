@@ -1,56 +1,22 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module.js';
 import { db } from './../src/prisma/db.js';
-
-async function clearTable(table: 'trip' | 'destination', iterations = 1000) {
-  // The ORM .delete() removes a single matching row per call, so loop until
-  // the table is empty. Capped as a safety net against infinite loops.
-  for (let i = 0; i < iterations; i++) {
-    const deleted =
-      table === 'trip'
-        ? await db.orm.public.Trip.where((t) => t.id.gte(0)).delete()
-        : await db.orm.public.Destination.where((d) => d.id.gte(0)).delete();
-    if (!deleted || (Array.isArray(deleted) && deleted.length === 0)) {
-      return;
-    }
-  }
-  throw new Error(`clearTable(${table}) did not converge`);
-}
-
-async function clearDestinations() {
-  // Trips first: the trip.destinationId FK blocks destination deletes.
-  await clearTable('trip');
-  await clearTable('destination');
-}
+import { adminHeader } from './helpers/auth.js';
+import { clearAllTables } from './helpers/db-cleanup.js';
+import { createTestApp } from './helpers/test-app.js';
 
 describe('Destinations (e2e)', () => {
   let app: INestApplication<App>;
+  let adminAuth: string;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      // The global 10 req/60s throttle would 429 this suite: bypass it here.
-      // Rate limiting itself is covered by the framework, not this feature.
-      .overrideGuard(ThrottlerGuard)
-      .useValue({ canActivate: () => true })
-      .compile();
-
-    app = moduleFixture.createNestApplication();
-    // Mirror main.ts: global prefix + validation pipe.
-    app.setGlobalPrefix('api/v1');
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, transform: true }),
-    );
-    await app.init();
+    app = await createTestApp();
   });
 
   beforeEach(async () => {
-    await clearDestinations();
+    await clearAllTables();
+    adminAuth = await adminHeader();
   });
 
   afterAll(async () => {
@@ -139,6 +105,7 @@ describe('Destinations (e2e)', () => {
   it('POST /api/v1/destinations creates a destination', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/destinations')
+      .set('Authorization', adminAuth)
       .send(createPayload({ description: 'Nile city' }))
       .expect(201);
 
@@ -150,11 +117,13 @@ describe('Destinations (e2e)', () => {
   it('POST /api/v1/destinations rejects invalid bodies with 400', async () => {
     await request(app.getHttpServer())
       .post('/api/v1/destinations')
+      .set('Authorization', adminAuth)
       .send({ city: 'Cairo', country: 'Egypt' })
       .expect(400);
 
     await request(app.getHttpServer())
       .post('/api/v1/destinations')
+      .set('Authorization', adminAuth)
       .send({ name: '   ', city: 'Cairo', country: 'Egypt' })
       .expect(400);
   });
@@ -164,6 +133,7 @@ describe('Destinations (e2e)', () => {
 
     await request(app.getHttpServer())
       .post('/api/v1/destinations')
+      .set('Authorization', adminAuth)
       .send(createPayload({ name: 'cAiRo' }))
       .expect(409);
   });
@@ -176,17 +146,20 @@ describe('Destinations (e2e)', () => {
 
     const updated = await request(app.getHttpServer())
       .put(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
       .send({ city: 'Giza' })
       .expect(200);
     expect(updated.body.city).toBe('Giza');
 
     await request(app.getHttpServer())
       .put('/api/v1/destinations/999999')
+      .set('Authorization', adminAuth)
       .send({ city: 'Giza' })
       .expect(404);
 
     await request(app.getHttpServer())
       .put(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
       .send({ name: 'luxor' })
       .expect(409);
   });
@@ -199,6 +172,7 @@ describe('Destinations (e2e)', () => {
 
     const res = await request(app.getHttpServer())
       .put(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
       .send({ isActive: true })
       .expect(200);
     expect(res.body.isActive).toBe(true);
@@ -213,6 +187,7 @@ describe('Destinations (e2e)', () => {
 
     const res = await request(app.getHttpServer())
       .delete(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
       .expect(200);
     expect(res.body.isActive).toBe(false);
 
@@ -223,10 +198,12 @@ describe('Destinations (e2e)', () => {
 
     await request(app.getHttpServer())
       .delete(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
       .expect(200);
 
     await request(app.getHttpServer())
       .delete('/api/v1/destinations/999999')
+      .set('Authorization', adminAuth)
       .expect(404);
   });
 

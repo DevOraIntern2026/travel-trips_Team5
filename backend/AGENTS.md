@@ -80,11 +80,13 @@ Copy `.env.example` to `.env`. Required vars (see `src/config/env.validation.ts`
    `HttpException` family + exception filters (no raw `throw new Error()` to clients);
    Guards for auth, `ThrottlerGuard` is already global; avoid circular module deps
    (`forwardRef` is a smell — restructure first).
-   Auth seam: `src/auth/` holds `@Public()`, `@Roles('Admin'|'Operator'|'Customer')`
-   and `RolesGuard` (deny-by-default, reads `request.user.role`). `RolesGuard` is
-   implemented + unit-tested but NOT registered globally yet — Backend 1 (auth) will
-   register it as `APP_GUARD` with the JWT guard that populates `request.user`.
-   Until then, `@Roles` metadata documents intent and management routes stay public.
+   Auth seam: `src/auth/` holds decorators (`decorators/`), guards (`guards/`),
+   `@Roles('Admin'|'Operator'|'Customer')` and `RolesGuard` (deny-by-default, reads `request.user.role`). Since the
+   auth feature, `JwtAuthGuard` + `RolesGuard` are registered globally as
+   `APP_GUARD` (authenticate first, then authorize): every non-`@Public()`
+   route requires a valid JWT, `@Roles()` routes additionally require the
+   role. DB roles are lowercase; the app vocabulary is PascalCase — the
+   mapping lives in `src/auth/authenticated-user.ts` (`toUserRole`).
 5. **TypeScript strictness.** `strict: true`, `strictPropertyInitialization: false`.
    No `any` leakage, no unchecked `as` casts (validate at boundaries), exhaustive
    switches over discriminated unions, `no-floating-promises` is `warn` — always
