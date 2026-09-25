@@ -68,7 +68,7 @@ export class TripsController {
 
   @Post()
   @Roles('Admin')
-  @ApiOperation({ summary: 'Create a trip (Admin, pending Backend 1)' })
+  @ApiOperation({ summary: 'Create a trip (Admin)' })
   @ApiResponse({ status: 201, description: 'The created trip.' })
   @ApiResponse({ status: 400, description: 'Validation failed.' })
   @ApiResponse({
@@ -81,7 +81,7 @@ export class TripsController {
 
   @Put(':tripId')
   @Roles('Admin')
-  @ApiOperation({ summary: 'Update a trip (Admin, pending Backend 1)' })
+  @ApiOperation({ summary: 'Update a trip (Admin)' })
   @ApiParam({ name: 'tripId', example: 1 })
   @ApiResponse({ status: 200, description: 'The updated trip.' })
   @ApiResponse({ status: 404, description: 'Trip or destination not found.' })
@@ -95,7 +95,7 @@ export class TripsController {
   @Delete(':tripId')
   @Roles('Admin')
   @ApiOperation({
-    summary: 'Deactivate a trip (Admin, pending Backend 1)',
+    summary: 'Deactivate a trip (Admin)',
   })
   @ApiParam({ name: 'tripId', example: 1 })
   @ApiResponse({ status: 200, description: 'The deactivated trip.' })

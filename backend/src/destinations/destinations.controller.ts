@@ -46,7 +46,7 @@ export class DestinationsController {
 
   @Post()
   @Roles('Admin')
-  @ApiOperation({ summary: 'Create a destination (Admin, pending Backend 1)' })
+  @ApiOperation({ summary: 'Create a destination (Admin)' })
   @ApiResponse({ status: 201, description: 'The created destination.' })
   @ApiResponse({ status: 400, description: 'Validation failed.' })
   @ApiResponse({ status: 409, description: 'Destination name already in use.' })
@@ -56,7 +56,7 @@ export class DestinationsController {
 
   @Put(':destinationId')
   @Roles('Admin')
-  @ApiOperation({ summary: 'Update a destination (Admin, pending Backend 1)' })
+  @ApiOperation({ summary: 'Update a destination (Admin)' })
   @ApiParam({ name: 'destinationId', example: 1 })
   @ApiResponse({ status: 200, description: 'The updated destination.' })
   @ApiResponse({ status: 404, description: 'Destination does not exist.' })
@@ -71,7 +71,7 @@ export class DestinationsController {
   @Delete(':destinationId')
   @Roles('Admin')
   @ApiOperation({
-    summary: 'Deactivate a destination (Admin, pending Backend 1)',
+    summary: 'Deactivate a destination (Admin)',
   })
   @ApiParam({ name: 'destinationId', example: 1 })
   @ApiResponse({ status: 200, description: 'The deactivated destination.' })
