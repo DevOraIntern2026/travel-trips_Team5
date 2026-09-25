@@ -8,6 +8,10 @@
       "model": "AuthToken",
       "namespace": "public"
     },
+    "booking": {
+      "model": "Booking",
+      "namespace": "public"
+    },
     "destination": {
       "model": "Destination",
       "namespace": "public"
@@ -51,6 +55,19 @@
               {
                 "name": "ResetPassword",
                 "value": "reset-password"
+              }
+            ]
+          },
+          "BookingStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "Confirmed",
+                "value": "Confirmed"
+              },
+              {
+                "name": "Cancelled",
+                "value": "Cancelled"
               }
             ]
           },
@@ -185,6 +202,152 @@
               },
               "namespaceId": "public",
               "table": "authToken"
+            }
+          },
+          "Booking": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "customerId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "price": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "BookingStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "tripDateId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "tripId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "customer": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "customerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "trip": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "tripId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Trip",
+                  "namespace": "public"
+                }
+              },
+              "tripDate": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "tripDateId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "TripDate",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "customerId": {
+                  "column": "customerId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "price": {
+                  "column": "price"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "tripDateId": {
+                  "column": "tripDateId"
+                },
+                "tripId": {
+                  "column": "tripId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "booking"
             }
           },
           "Destination": {
@@ -569,6 +732,13 @@
           },
           "Trip": {
             "fields": {
+              "cancellationWindowHours": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -634,6 +804,21 @@
               }
             },
             "relations": {
+              "bookings": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "tripId"
+                  ]
+                },
+                "to": {
+                  "model": "Booking",
+                  "namespace": "public"
+                }
+              },
               "dates": {
                 "cardinality": "1:N",
                 "on": {
@@ -668,6 +853,9 @@
             },
             "storage": {
               "fields": {
+                "cancellationWindowHours": {
+                  "column": "cancellationWindowHours"
+                },
                 "createdAt": {
                   "column": "createdAt"
                 },
@@ -702,6 +890,13 @@
           },
           "TripDate": {
             "fields": {
+              "bookedSeats": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "capacity": {
                 "nullable": false,
                 "type": {
@@ -767,6 +962,21 @@
               }
             },
             "relations": {
+              "bookings": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "tripDateId"
+                  ]
+                },
+                "to": {
+                  "model": "Booking",
+                  "namespace": "public"
+                }
+              },
               "trip": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -786,6 +996,9 @@
             },
             "storage": {
               "fields": {
+                "bookedSeats": {
+                  "column": "bookedSeats"
+                },
                 "capacity": {
                   "column": "capacity"
                 },
@@ -917,6 +1130,21 @@
                 },
                 "to": {
                   "model": "AuthToken",
+                  "namespace": "public"
+                }
+              },
+              "bookings": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "customerId"
+                  ]
+                },
+                "to": {
+                  "model": "Booking",
                   "namespace": "public"
                 }
               },
@@ -1120,6 +1348,157 @@
                   ]
                 }
               ]
+            },
+            "booking": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('Confirmed', 'Cancelled')",
+                  "name": "booking_status_check_0200d7e3",
+                  "prefix": "booking_status_check"
+                }
+              ],
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "customerId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "price": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "Confirmed"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "BookingStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "tripDateId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "tripId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "customerId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "booking"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "tripId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "booking"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "trip"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "tripDateId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "booking"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "tripDate"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "customerId"
+                  ],
+                  "name": "booking_customerId_idx_b2a8a46c",
+                  "prefix": "booking_customerId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "tripDateId"
+                  ],
+                  "name": "booking_tripDateId_idx_a5fef724",
+                  "prefix": "booking_tripDateId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "tripId"
+                  ],
+                  "name": "booking_tripId_idx_75da6d97",
+                  "prefix": "booking_tripId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
             },
             "destination": {
               "columns": {
@@ -1410,6 +1789,15 @@
             },
             "trip": {
               "columns": {
+                "cancellationWindowHours": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 24
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "default": {
@@ -1506,6 +1894,11 @@
             "tripDate": {
               "checks": [
                 {
+                  "expression": "\"capacity\" >= \"bookedSeats\"",
+                  "name": "tripdate_capacity_check_3ee2feb7",
+                  "prefix": "tripdate_capacity_check"
+                },
+                {
                   "expression": "capacity > 0",
                   "name": "tripdate_capacity_positive_2e07dccc",
                   "prefix": "tripdate_capacity_positive"
@@ -1522,6 +1915,15 @@
                 }
               ],
               "columns": {
+                "bookedSeats": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
                 "capacity": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
@@ -1752,6 +2154,13 @@
                 "reset-password"
               ]
             },
+            "BookingStatus": {
+              "kind": "valueSet",
+              "values": [
+                "Confirmed",
+                "Cancelled"
+              ]
+            },
             "UserRole": {
               "kind": "valueSet",
               "values": [
@@ -1766,10 +2175,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "9540be907599c4127e0827046b1b692b5e6b1c2b9e42ac8bf145157d638825b5"
+    "storageHash": "5486a734c9ce4efd6b7ecd26150ba18b5fdbdcf154a001e931d24d02c7eece43"
   },
   "execution": {
-    "executionHash": "d02c74d282a1d616d4fe661a0ea43c171baed6b8a371c9f113ccf7e0cd71d259",
+    "executionHash": "37a0b7b3a161bdf3cc137516277840087853a4c37909848a27533ecd1f768d9e",
     "mutations": {
       "defaults": [
         {
@@ -1785,6 +2194,21 @@
             "column": "updatedAt",
             "namespace": "public",
             "table": "authToken"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "booking"
           }
         },
         {

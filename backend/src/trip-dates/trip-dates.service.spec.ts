@@ -60,6 +60,7 @@ function dateRow(overrides: Partial<TripDateRow> = {}): TripDateRow {
     endDate: '2026-10-05T18:00:00.000Z',
     price: '99.99',
     capacity: 20,
+    bookedSeats: 0,
     isActive: true,
     createdAt: STAMP,
     updatedAt: STAMP,
@@ -74,7 +75,7 @@ function activeTrip() {
 describe('TripDatesService', () => {
   let service: TripDatesService;
   let bookedSeats: number;
-  let getConfirmedBookedSeats: ReturnType<typeof vi.fn>;
+  let getConfirmedBookedSeats: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
