@@ -12,4 +12,6 @@ export const envValidationSchema = Joi.object({
   APP_PUBLIC_URL: Joi.string().default('http://localhost:3000'),
   GMAIL_USER: Joi.string().email().optional(),
   GMAIL_APP_PASSWORD: Joi.string().optional(),
+  ADMIN_EMAIL: Joi.string().email().optional(),
+  ADMIN_PASSWORD: Joi.string().optional(),
 });
