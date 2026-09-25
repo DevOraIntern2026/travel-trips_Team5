@@ -19,7 +19,7 @@ export class AdminTripsController {
   @Patch(':tripId/operator')
   @Roles('Admin')
   @ApiOperation({
-    summary: 'Assign an operator to a trip (Admin, pending Backend 1)',
+    summary: 'Assign an operator to a trip (Admin)',
   })
   @ApiParam({ name: 'tripId', example: 1 })
   @ApiResponse({ status: 200, description: 'The trip with the operator set.' })
@@ -35,7 +35,7 @@ export class AdminTripsController {
   @Roles('Admin')
   @ApiOperation({
     summary:
-      'Remove the operator assignment from a trip (Admin, pending Backend 1)',
+      'Remove the operator assignment from a trip (Admin)',
   })
   @ApiParam({ name: 'tripId', example: 1 })
   @ApiResponse({
