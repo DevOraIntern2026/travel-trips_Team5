@@ -6,6 +6,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { DestinationsModule } from './destinations/destinations.module.js';
+import { HealthModule } from './health/health.module.js';
 import { OperatorsModule } from './operators/operators.module.js';
 import { TripsModule } from './trips/trips.module.js';
 import { TripDatesModule } from './trip-dates/trip-dates.module.js';
@@ -43,6 +44,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     AuthModule,
     UsersModule,
     OperatorsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [
