@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import "./login.css"
+import "./Login.css"
 import { useState } from "react";
 
 export default function Login() {
