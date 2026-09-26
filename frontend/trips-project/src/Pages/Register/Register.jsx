@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./register.css"
+import "./Register.css"
 
 export default function Register() {
 
