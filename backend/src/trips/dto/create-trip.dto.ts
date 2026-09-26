@@ -8,16 +8,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-
-const trim = ({ value }: { value: unknown }): unknown =>
-  typeof value === 'string' ? value.trim() : value;
-
-const toNumberOrNull = ({ value }: { value: unknown }): unknown => {
-  if (value === null || value === undefined || value === '') {
-    return value === '' ? undefined : value;
-  }
-  return Number(value);
-};
+import { toNumberOrNull, trimString } from '../../common/transforms.js';
 
 export class CreateTripDto {
   @ApiProperty({ example: 1, description: 'Must be an active destination.' })
@@ -27,14 +18,14 @@ export class CreateTripDto {
   destinationId!: number;
 
   @ApiProperty({ example: 'Old Cairo walking tour', maxLength: 150 })
-  @Transform(trim)
+  @Transform(trimString)
   @IsString()
   @IsNotEmpty()
   @MaxLength(150)
   name!: string;
 
   @ApiPropertyOptional({ maxLength: 2000 })
-  @Transform(trim)
+  @Transform(trimString)
   @IsOptional()
   @IsString()
   @MaxLength(2000)

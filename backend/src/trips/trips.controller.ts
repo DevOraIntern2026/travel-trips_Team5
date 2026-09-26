@@ -10,10 +10,12 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public } from '../auth/public.decorator.js';
-import { Roles } from '../auth/roles.decorator.js';
+import { Public } from '../auth/decorators/public.decorator.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
 import { CreateTripDto } from './dto/create-trip.dto.js';
+import { TripFilterQueryDto } from './dto/trip-filter-query.dto.js';
 import { TripQueryDto } from './dto/trip-query.dto.js';
+import { TripSearchQueryDto } from './dto/trip-search-query.dto.js';
 import { UpdateTripDto } from './dto/update-trip.dto.js';
 import { TripsService } from './trips.service.js';
 
@@ -31,9 +33,26 @@ export class TripsController {
     return this.trips.findAll(query);
   }
 
-  // NOTE: future GET /trips/search and /trips/filter routes (§5.6-7, §8)
-  // must be declared ABOVE @Get(':tripId'), otherwise 'search'/'filter'
-  // would be parsed as a tripId and rejected with 400.
+  // NOTE: /trips/search and /trips/filter must stay ABOVE @Get(':tripId'),
+  // otherwise 'search'/'filter' would be parsed as a tripId and rejected.
+  @Get('search')
+  @Public()
+  @ApiOperation({ summary: 'Search trips by name, text and destination' })
+  @ApiResponse({ status: 200, description: 'Paginated matching trips.' })
+  @ApiResponse({ status: 400, description: 'Invalid query parameters.' })
+  search(@Query() query: TripSearchQueryDto) {
+    return this.trips.searchTrips({ ...query, text: query.q });
+  }
+
+  @Get('filter')
+  @Public()
+  @ApiOperation({ summary: 'Filter trips by criteria' })
+  @ApiResponse({ status: 200, description: 'Paginated matching trips.' })
+  @ApiResponse({ status: 400, description: 'Invalid query parameters.' })
+  filter(@Query() query: TripFilterQueryDto) {
+    return this.trips.searchTrips(query);
+  }
+
   @Get(':tripId')
   @Public()
   @ApiOperation({ summary: 'Get an active trip by id (with destination)' })
@@ -49,7 +68,7 @@ export class TripsController {
 
   @Post()
   @Roles('Admin')
-  @ApiOperation({ summary: 'Create a trip (Admin, pending Backend 1)' })
+  @ApiOperation({ summary: 'Create a trip (Admin)' })
   @ApiResponse({ status: 201, description: 'The created trip.' })
   @ApiResponse({ status: 400, description: 'Validation failed.' })
   @ApiResponse({
@@ -62,7 +81,7 @@ export class TripsController {
 
   @Put(':tripId')
   @Roles('Admin')
-  @ApiOperation({ summary: 'Update a trip (Admin, pending Backend 1)' })
+  @ApiOperation({ summary: 'Update a trip (Admin)' })
   @ApiParam({ name: 'tripId', example: 1 })
   @ApiResponse({ status: 200, description: 'The updated trip.' })
   @ApiResponse({ status: 404, description: 'Trip or destination not found.' })
@@ -76,7 +95,7 @@ export class TripsController {
   @Delete(':tripId')
   @Roles('Admin')
   @ApiOperation({
-    summary: 'Deactivate a trip (Admin, pending Backend 1)',
+    summary: 'Deactivate a trip (Admin)',
   })
   @ApiParam({ name: 'tripId', example: 1 })
   @ApiResponse({ status: 200, description: 'The deactivated trip.' })
@@ -87,9 +106,9 @@ export class TripsController {
 
   @Get(':tripId/operator')
   @Public()
-  @ApiOperation({ summary: 'Get the operator assigned to a trip' })
+  @ApiOperation({ summary: 'Get the company assigned to a trip' })
   @ApiParam({ name: 'tripId', example: 1 })
-  @ApiResponse({ status: 200, description: 'The assigned operator id.' })
+  @ApiResponse({ status: 200, description: 'The assigned company.' })
   @ApiResponse({
     status: 404,
     description: 'Trip not found or no operator assigned.',
