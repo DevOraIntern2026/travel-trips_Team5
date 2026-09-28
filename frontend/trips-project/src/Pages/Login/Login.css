@@ -17,32 +17,29 @@ body,
     width: 100%;
     height: calc(100vh - 95px);
     display: flex;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 .pioneerContainer {
     width: 50%;
-    height: 100%;
+    height: 953.5px;
     background-image: url("../../assets/images/loginImages/Gradient\ \(2\).png");
     position: relative;
-  }.pioneerBackground {
+  }
+  .pioneerBackground {
     position: absolute;
     inset: 0;
-
     background-image:
-        url("../../assets/images/loginImages/Gradient (2).png"),
-        url("../../assets/images/loginImages/Gradient (1).png"),
-        url("../../assets/images/loginImages/Sinai Mountain and Desert Horizon at Dusk.png");
-
+    url("../../assets/images/loginImages/Gradient (2).png"),
+    url("../../assets/images/loginImages/Sinai Mountain and Desert Horizon at Dusk.png"),
+    url("../../assets/images/loginImages/Gradient (1).png");
     background-size:
         100% 100%,
         100% 100%,
         cover;
-
     background-position:
         top right,
         bottom left,
         center;
-
     background-repeat:
         no-repeat,
         no-repeat,
@@ -57,7 +54,7 @@ body,
     align-items: center;
     background-color: rgba(255, 255, 255, 0.15);
     width: 46%;
-    margin: 12px 40px;
+    margin: 45px 40px 17px;
     font-size: 12px;
     font-weight: 600;
     color: #B5EDE8;
@@ -72,7 +69,7 @@ body,
   font-weight: 700;
   font-size: 36px;
   color:#FFFFFF;
-  width: 560px;
+  width:80%;
   padding: 12px 40px;
 }
 .details{
@@ -84,16 +81,173 @@ body,
   opacity: 80%;
   padding: 0 48px 0px 40px ;
 }
+.satelliteRelay {
+    width: 100%;
+    max-width: 70%;
+    box-sizing: border-box;
+    margin-top: 208px;
+    padding: 12px 20px 20px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 15px;
+    backdrop-filter: blur(8px);
+    margin-left: 40px;
+}
+.relayTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.relayTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.relayIcon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.15);
+    font-size: 16px;
+}
+.relayTitle h3 {
+    margin: 0 0 2px;
+    font-family: var(--font-family-);
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+.relayTitle p {
+    margin: 0;
+    font-family: var(--font-family-);
+    font-size: 10px;
+    line-height: 1.2;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.62);
+}
+.liveGrid {
+    height: 24px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(31, 220, 167, 0.16);
+    font-family: var(--font-family-);
+    font-size: 10px;
+    font-weight: 600;
+    color: #59D7B0;
+}
+.liveDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #27D59C;
+}
+.relayStats {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+.relayStat {
+    flex: 1;
+    height: 55px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.07);
+}
+.relayStat strong {
+    margin: 0 0 3px;
+    font-family: var(--font-family-);
+    font-size: 17px;
+    line-height: 1;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+.relayStat span {
+    font-family: var(--font-family-);
+    font-size: 9px;
+    line-height: 1;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.62);
+}
+.pioneerFooter {
+    position: absolute;
+    left: 40px;
+    right: 40px;
+    bottom: 40px;
+    z-index: 2;
+}
+.certificatesContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-family-);
+    font-size: 10px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.65);
+}
+.security,
+.encryption,
+.verification {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.security img,
+.encryption img,
+.verification img {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+}
+.security p,
+.encryption p,
+.verification p {
+    margin: 0;
+    padding: 0;
+}
+.dot {
+    width: 6px;
+    height: 6px;
+    background-color: #BFC8C7;
+    border-radius: 50%;
+}
+.trustedText {
+    margin: 10px 0 0;
+    font-family: var(--font-family-);
+    font-size: 9px;
+    line-height: 1.4;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.55);
+}
+.pioneerFooter {
+    position: absolute;
+    left: 40px;
+    right: 40px;
+    bottom: 40px;
+    z-index: 2;
+}
 .loginFormSide {
     width: 50%;
-    height: 100%;
+    height: 953.5px;
     display: flex;
     justify-content: center;
-    align-items: center;
-    overflow: hidden;
+    align-items: center;   
 }
 .loginContainer {
-        width: 440px;
+    width: 440px;
     max-height: calc(100% - 30px);
     box-sizing: border-box;
     margin: 0;
@@ -112,9 +266,12 @@ body,
   
 }
 .availableLoginContainer {
-    display: flex;
-    justify-content: space-between;
-    margin:12px 0px 14px ;
+  display: flex;
+  justify-content: space-between;
+  margin:12px 0px 14px ;
+}
+.availableLoginContainer img{
+  padding-right: 5px;
 }
 .logistics{  
   font-size: 14px;
@@ -131,7 +288,7 @@ body,
   background-color: #F2F3FF;
   padding: 8px 14px;
   border-radius: 10px;
-
+  margin-bottom: 24px;
 }
 .unifiedPortal img{
   margin-right: 5px;
@@ -143,7 +300,7 @@ body,
     background-color: #F2F3FF;
     border-radius: 10px;
     font-size: 12px;
-    padding: 12px 80px;
+    padding: 12px 76px;
     cursor: pointer;
 }
 .emailAccess{
@@ -159,6 +316,9 @@ body,
 .userLogin label {
   font-size: 12px;
   font-weight: 600;
+}
+.passLabels  {
+  padding-top: 24px;
 }
 .passLabels{
   display: flex;
@@ -192,16 +352,17 @@ input[type="password"]::-ms-clear {
   cursor: pointer;
 }
 .userLogin input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 11px 15px;
-    font-size: 15px;
-    outline: none;
-  }
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 15px;
+  font-size: 15px;
+  outline: none;
+}
 .userLogin .rememberContainer   {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  padding-top: 24px;
 }
 .userLogin .rememberContainer .rememberData  {
   width: fit-content;
@@ -210,21 +371,10 @@ input[type="password"]::-ms-clear {
   gap: 10px;
 }
 .userLogin .rememberContainer .rememberData  input{
-  width: fit-content;
-  
+  width: fit-content; 
 }
-
 .userLogin input:focus {
   border-color: #555;
-}
-
-.btnsContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-
-  margin-top: 25px;
 }
 .rememberContainer{
   display: flex;
@@ -235,7 +385,6 @@ input[type="password"]::-ms-clear {
 }
 .rememberContainer a{
   text-decoration: underline;
-
 }
 .loginBtn {
   width: 100%;
@@ -243,20 +392,16 @@ input[type="password"]::-ms-clear {
   font-family: var(--font-family-);
   border: none;
   border-radius: 6px;
-
   font-size: 15px;
   cursor: pointer;
 }
-
 .loginBtn {
   background-color: #333;
   color: white;
 }
-
 .loginBtn:hover {
   background-color: #222;
 }
-
 .btnsContainer label {
   font-size: 14px;
   color: #666;
@@ -266,8 +411,8 @@ input[type="password"]::-ms-clear {
   font-size: 12px;
   font-weight: 400;
   text-align: center;
+  padding-top: 31px;
 }
-
 .registerLink,.required{
   font-weight: 600;
   color: var(--primary-color-) ;
@@ -281,8 +426,7 @@ input[type="password"]::-ms-clear {
   font-weight: 400;
 }
 .internalAdmin img{
-  margin-right: 5px;
-  
+  margin-right: 5px; 
 }
 .policies{
   display: flex;
@@ -292,6 +436,7 @@ input[type="password"]::-ms-clear {
   align-items: baseline;
   font-weight: 400;
   font-size: 11px;
+  padding-top: 16px;
   color: var(--primary-);
 }
 .dot{

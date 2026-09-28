@@ -6,12 +6,15 @@ import appleLogo from "../../assets/images/loginImages/apple.png"
 import interAdmin from "../../assets/images/loginImages/interAdmin.png"
 import encrypted from "../../assets/images/loginImages/encrypted.png"
 import forEgypt from "../../assets/images/loginImages/forEgypt.png"
-import lockPass from "../../assets/images/loginImages/secured.png"
+import lockPass from "../../assets/images/loginImages/encryption.png"
 import eyeIcon from "../../assets/images/loginImages/eye.png"
 import atIcon from "../../assets/images/loginImages/at.png"
+import verification from "../../assets/images/loginImages/verification.png"
+import security from "../../assets/images/loginImages/security.png"
+import stalite from "../../assets/images/loginImages/stalite.png"
 
 export default function Login() {
-    const [showPassword,setShowPassword]=useState(false)
+    const [showPassword, setShowPassword] = useState(false)
     const [userData, setUserData] = useState({
         email: "",
         password: "",
@@ -35,7 +38,7 @@ export default function Login() {
             <div className="pioneerContainer">
                 <div className="pioneerBackground"></div>
                 <div className="pioneerHeader">
-                    
+
                     <div className="forEgyptContainer">
                         <img src={forEgypt} alt="" />
                         <p>Egypt & Middle East Wilderness Gateway</p>
@@ -45,8 +48,77 @@ export default function Login() {
                         Red Sea coral plateaus curated with authentic Bedouin guardianship
                         and live satellite logistics.</h3>
                 </div>
+                <div className="satelliteRelay">
+
+                    <div className="relayTop">
+
+                        <div className="relayTitle">
+
+                            <div className="relayIcon">
+                                <img src={stalite} alt="satalite"/>
+                            </div>
+
+                            <div>
+                                <h3>ACTIVE FLEET SATELLITE RELAY</h3>
+                                <p>Wadi Feiran &amp; St. Catherine Expedition Hubs</p>
+                            </div>
+
+                        </div>
+
+                        <div className="liveGrid">
+                            <span className="liveDot"></span>
+                            <span>Live Grid</span>
+                        </div>
+
+                    </div>
+
+
+                    <div className="relayStats">
+
+                        <div className="relayStat">
+                            <strong>18</strong>
+                            <span>Field Operatives</span>
+                        </div>
+
+                        <div className="relayStat">
+                            <strong>100%</strong>
+                            <span>Route Safety Rate</span>
+                        </div>
+
+                        <div className="relayStat">
+                            <strong>42ms</strong>
+                            <span>Telemetry Sync</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="pioneerFooter">
+
+                    <div className="certificatesContainer">
+                        <div className="security">
+                            <img src={security} alt="" />
+                            <p>ISO-27001 Data Security</p>
+                        </div>
+                        <span className="dot"></span>
+                        <div className="encryption">
+                            <img src={lockPass} alt="encrypted" />
+                            <p>256-Bit SSL Encrypted</p>
+                        </div>
+                        <span className="dot"></span>
+                        <div className="verification">
+                            <img src={verification} alt="" />
+                            <p>Verified Operator Escort</p>
+                        </div>
+                    </div>
+
+
+                    <p className="trustedText">
+                        Trusted by over 14,000 global travelers, desert research institutions,
+                        and certified desert guides since 2018.
+                    </p>
+
+                </div>
             </div>
-            
+
             <div className="loginFormSide">
 
 
@@ -69,14 +141,14 @@ export default function Login() {
                     <div className='userLogin'>
                         <label htmlFor="email" className='email'>Email Address <span className="required">*</span></label>
                         <div className="inputWrapper">
-                        <img src={atIcon} alt="at" />
-                        <input id='email'
-                            type='text'
-                            placeholder='name@organization.com'
-                            required
-                            onChange={handleChange}
-                            name="email"
-                            value={userData.email} />
+                            <img src={atIcon} alt="at" />
+                            <input id='email'
+                                type='text'
+                                placeholder='name@organization.com'
+                                required
+                                onChange={handleChange}
+                                name="email"
+                                value={userData.email} />
                         </div>
                         <div className="passLabels">
                             <label htmlFor="password">Password <span className="required">*</span></label>
@@ -90,11 +162,11 @@ export default function Login() {
                                 onChange={handleChange}
                                 name="password"
                                 value={userData.password}
-                                required 
-                                />
-                            <img  className="eyeIcon" src={eyeIcon} 
-                            alt="eye"
-                            onClick={() => setShowPassword(!showPassword)}
+                                required
+                            />
+                            <img className="eyeIcon" src={eyeIcon}
+                                alt="eye"
+                                onClick={() => setShowPassword(!showPassword)}
                             />
                         </div>
 
