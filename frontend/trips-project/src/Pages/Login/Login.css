@@ -1,44 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+:root{
+  --font-family-: "Plus Jakarta Sans";
+  --primary-color-:#AC3311;
+  --text-body-:#334155;
+  --text-head-:#0F172A;
+  --primary-:#0C4A47;
+}
+html,
+body,
+#root {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+.loginPage {
+    width: 100%;
+    height: calc(100vh - 95px);
+    display: flex;
+    overflow: hidden;
+}
+.pioneerContainer {
+    width: 50%;
+    height: 100%;
+    background-image: url("../../assets/images/loginImages/Gradient\ \(2\).png");
+    position: relative;
+  }.pioneerBackground {
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        url("../../assets/images/loginImages/Gradient (2).png"),
+        url("../../assets/images/loginImages/Gradient (1).png"),
+        url("../../assets/images/loginImages/Sinai Mountain and Desert Horizon at Dusk.png");
+
+    background-size:
+        100% 100%,
+        100% 100%,
+        cover;
+
+    background-position:
+        top right,
+        bottom left,
+        center;
+
+    background-repeat:
+        no-repeat,
+        no-repeat,
+        no-repeat;
+}
+.pioneerHeader {
+    position: relative;
+    z-index: 1;
+}
+.forEgyptContainer{
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.15);
+    width: 46%;
+    margin: 12px 40px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #B5EDE8;
+    border-radius: 60px;
+    padding: 4px 12px;
+    border: 1px rgba(255, 255, 255, 0.3) solid;
+}
+.forEgyptContainer img{
+  padding: 0 10px;
+}
+.pioneerHeaderText{
+  font-weight: 700;
+  font-size: 36px;
+  color:#FFFFFF;
+  width: 560px;
+  padding: 12px 40px;
+}
+.details{
+  font-size: 16px;
+  font-weight: 400;
+  width: 75%;
+  height: 72px;
+  color: #FFFFFF;
+  opacity: 80%;
+  padding: 0 48px 0px 40px ;
+}
+.loginFormSide {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
 .loginContainer {
-  width: 380px;
-  padding: 30px 35px;
-  margin: 100px auto 0;
-
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-
-  display: flex;
-  flex-direction: column;
+        width: 440px;
+    max-height: calc(100% - 30px);
+    box-sizing: border-box;
+    margin: 0;
+    font-family: var(--font-family-);
+    border-radius: 10px;
+    display: flex;
+    background: white;
+    flex-direction: column;
 }
-
 .loginHeader {
-  text-align: center;
+  font-family: var(--font-family-);
+  color: var(--text-head-);
   margin: 0 0 25px;
-  font-size: 28px;
+  font-size: 30px;
+  font-weight: 700;
+  
 }
+.availableLoginContainer {
+    display: flex;
+    justify-content: space-between;
+    margin:12px 0px 14px ;
+}
+.logistics{  
+  font-size: 14px;
+  font-weight: 400;
+  width: 440px;
+  padding-bottom: 16px;
+}
+.unifiedPortal{
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 12px;
+  padding-bottom: 14px;
+  background-color: #F2F3FF;
+  padding: 8px 14px;
+  border-radius: 10px;
 
+}
+.unifiedPortal img{
+  margin-right: 5px;
+}
+.availableLoginContainer button{
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    background-color: #F2F3FF;
+    border-radius: 10px;
+    font-size: 12px;
+    padding: 12px 80px;
+    cursor: pointer;
+}
+.emailAccess{
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
+}
 .userLogin {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-
 .userLogin label {
-  font-size: 15px;
-  font-weight: 500;
-  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
 }
-
+.passLabels{
+  display: flex;
+  justify-content: space-between;
+}
+.encrypted{
+  display: flex;
+  font-size: 11px;
+  color: var(--text-body-);
+  font-weight: 400;
+  align-items: center;
+}
+.encrypted img{
+  margin-right:5px ;
+}
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid  rgba(112, 121, 120, 0.3);;
+  border-radius: 12px;  
+}
+.inputWrapper img{
+  padding-left: 10px;
+}
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+.eyeIcon{
+  padding-right: 10px;
+  cursor: pointer;
+}
 .userLogin input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 11px 12px;
-
-  border: 1px solid #ccc;
-  border-radius: 6px;
-
-  font-size: 15px;
-  outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 15px;
+    font-size: 15px;
+    outline: none;
+  }
+.userLogin .rememberContainer   {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.userLogin .rememberContainer .rememberData  {
+  width: fit-content;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.userLogin .rememberContainer .rememberData  input{
+  width: fit-content;
+  
 }
 
 .userLogin input:focus {
@@ -53,11 +226,21 @@
 
   margin-top: 25px;
 }
+.rememberContainer{
+  display: flex;
+  font-size: 12px;
+  font-weight:400 ;
+  color: var(--text-body-);
+  font-family: var(--font-family-);
+}
+.rememberContainer a{
+  text-decoration: underline;
 
+}
 .loginBtn {
   width: 100%;
   padding: 11px;
-
+  font-family: var(--font-family-);
   border: none;
   border-radius: 6px;
 
@@ -78,24 +261,42 @@
   font-size: 14px;
   color: #666;
 }
-
-.registerBtn {
- display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  width: 100%;
-  padding: 11px;
-  border: 1px solid #333;
-  border-radius: 6px;
-  font-size: 15px;
-  cursor: pointer;
-  background-color: #333;
-  color: white;
-  text-decoration: none;
+.noAccount{
+  color: var(--text-head-);
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
 }
 
-.registerBtn:hover {
-  background-color: #222;
-  color: white;
+.registerLink,.required{
+  font-weight: 600;
+  color: var(--primary-color-) ;
+}
+.internalAdmin{
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  color: var(--text-body-);
+  font-size: 11px;
+  font-weight: 400;
+}
+.internalAdmin img{
+  margin-right: 5px;
+  
+}
+.policies{
+  display: flex;
+  width: 80%;
+  margin: auto;
+  justify-content:space-between ;
+  align-items: baseline;
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--primary-);
+}
+.dot{
+  width: 6px;
+  height: 6px;
+  background-color: #BFC8C7;
+  border-radius: 50%;
 }

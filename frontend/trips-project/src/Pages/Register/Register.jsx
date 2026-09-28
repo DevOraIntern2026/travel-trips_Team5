@@ -148,5 +148,6 @@ return (
             <button className='registerBtn'>Register</button>
         </div>
         {/* {!Object.values(error).every((err)=>err==="")&&<p>Registered successfully</p>} */}
-    </form>  )
+    </form>  
+    )
 }
