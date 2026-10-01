@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+:root{
+  --font-family-:"Plus Jakarta Sans";
+  --font-bold-:700;
+}
+.path{
+  font-family: var(--font-family-);
+  font-weight: var(--font-bold-);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+}
+.path img{
+  margin-right: 5px ;
+}
+.path a,.rightArrow{
+  margin-right: 10px ;
+}
+.rightArrow{
+  color: #707978;
+}
+.liveGlobalContainer {
+    height: 517px;
+    inset: 0;
+
+    background-image:
+        /* Orange - top right */
+        radial-gradient(
+            circle at top right,
+            rgba(255, 110, 72, 0.2),
+            transparent 35%
+        ),
+
+        /* Green - bottom to top */
+        linear-gradient(
+            to top,
+            rgba(12, 74, 71, 1),
+            rgba(12, 74, 71, 0.7)
+        ),
+
+        /* Main image */
+        url("../assets/images/expeditionImages/Ambient Atmospheric Backdrop.png");
+}
+.liveGlobalContainer .dot{
+  width: 8px;
+  height: 8px;
+  background-color: #FF6E48;
+  margin-right: 5px;
+}
+.headerText{
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.15);
+    width: fit-content;
+    /* margin: 45px 40px 17px; */
+    font-size: 11px;
+    font-weight: 600;
+    color: #B5EDE8;
+    border-radius: 60px;
+    padding: 4px 12px;
+    border: 1px rgba(255, 255, 255, 0.3) solid;
+}
+.verificationContainer{
+  display: flex;
+  align-items: center;
+  color: #9AD1CC;
+ font-size: 13px;
+
+}
+.liveGlobalHeader{
+  display: flex;
+  align-items: baseline;
+  padding:45px 45px 0;
+  justify-content:space-between;
+}
+.liveGlobalHeader img{
+  margin-right: 5px;
+}
+.sacredWildernessContainer h1{
+  font-size: 44px;
+  font-weight: 700;
+  width: 60%;
+  color: #FAF8FF;
+  padding: 0px 45px;
+}
+.descriptionWilderness{
+  font-size: 18px;
+  width: 60%;
+  font-weight: 200;
+  color: #DAE2FD;
+  opacity: 0.9;
+  padding: 0px 45px;
+}
+.destinationContainer{
+     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px;
+}
+  .hold{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 16px 45px;
+    background-color: #FFFFFF;
+    height: 159px;
+    border-radius: 12px;
+    padding: 10px;
+  }
+.destinationWrapper,.windowWrapper,.travelerWrapper{
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #404847;
+  text-transform: uppercase;
+}
+.travelerContainer{
+  display: flex;
+  height: fit-content;
+}
+.destinationWrapper img,.windowWrapper img,.travelerWrapper img{
+  margin-right: 5px;
+}
+.travelerButtons{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  margin-left: 93.97px;
+}
+.searchButtonContainer{
+    display: flex;
+    width: 22%;
+    align-items: center;
+    background: #003230;
+    height: 56px;
+    color: #FFFFFF;
+    justify-content: center;
+    border-radius: 10px;
+}
+.searchButtonContainer .searchButton{
+    background-color: #003230;
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: 10px;
+    font-size: 16px;
+}
+.expeditionsTypes{
+  display: flex;
+  align-items: center;
+  /* gap: 10px; */
+  /* padding: 0px 45px; */
+  width: 50%;
+}
+.expeditionsTypesList{
+  gap: 5px;
+    text-align: center;
+    display: flex;
+/* align-items: center; */
+    /* justify-content: space-between; */
+    /* padding: 0px 45px; */
+    width: 80%;
+    /* align-items: center; */
+}
+.expeditionsTypes span{
+  font-size: 11px;
+  font-weight: 700;
+  color: #404847;
+  padding-right: 10px;
+}
+.expeditionsTypesList li{
+  cursor: pointer;
+    height: 50px;
+    align-items: center;
+    display: flex;
+    justify-content: center;  
+    border-radius: 30px;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+}

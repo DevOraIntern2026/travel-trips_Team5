@@ -8,6 +8,7 @@ import Login from "../Pages/Login/Login";
 import Register from "../Pages/Register/Register";
 import MainLayout from "../Layout/MaineLayout";
 import NotFound from "../Pages/NotFound/NotFound";
+import ExpeditionDiscovery from "../expedition/ExpeditionDiscovery";
 
 export const router = createBrowserRouter([
  {
@@ -16,6 +17,10 @@ export const router = createBrowserRouter([
       {
     path: "/",
     element: <Home />,
+  },
+  {
+    path: "/home/expedition",
+    element: <ExpeditionDiscovery/>,
   },
   {
     path: "/about",
