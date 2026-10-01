@@ -28,10 +28,16 @@ export type TripDestination = Omit<Models.public_Destination, 'trips'>;
 // 'destination' is nullable in the type (LEFT JOIN semantics) even though the
 // FK guarantees a row in practice. Omit 'trips': never included on the branch.
 // Omit 'dates': the back-relation is only populated via .include().
-export type Trip = Omit<Models.public_Trip, 'destination' | 'dates' | 'bookings'> & {
+export type Trip = Omit<
+  Models.public_Trip,
+  'destination' | 'dates' | 'bookings'
+> & {
   destination: TripDestination | null;
 };
-export type TripSummary = Omit<Models.public_Trip, 'destination' | 'dates' | 'bookings'>;
+export type TripSummary = Omit<
+  Models.public_Trip,
+  'destination' | 'dates' | 'bookings'
+>;
 
 export interface TripsMeta {
   page: number;
@@ -428,13 +434,16 @@ export class TripsService {
   }
 
   async update(tripId: number, dto: UpdateTripDto): Promise<Trip> {
-    await this.requireById(tripId);
+    const existing = await this.requireById(tripId);
 
     if (dto.destinationId !== undefined) {
       await this.assertActiveDestination(dto.destinationId);
     }
     if (dto.operatorId !== undefined && dto.operatorId !== null) {
       await this.assertActiveOperator(dto.operatorId);
+    }
+    if (dto.isActive === false && existing.isActive) {
+      await this.assertNoActiveDates(tripId);
     }
 
     const name = dto.name?.trim() ? dto.name.trim() : undefined;
@@ -477,6 +486,18 @@ export class TripsService {
     if (!existing.isActive) {
       return existing;
     }
+    await this.assertNoActiveDates(tripId);
+    await db.orm.public.Trip.where({ id: tripId }).update({
+      isActive: false,
+    });
+    return this.requireById(tripId);
+  }
+
+  /**
+   * Deactivation guard shared by update (isActive: false) and remove:
+   * a trip with live dates stays visible until the dates are deactivated.
+   */
+  private async assertNoActiveDates(tripId: number): Promise<void> {
     const liveDate = await db.orm.public.TripDate.where((d) =>
       d.tripId.eq(tripId),
     )
@@ -487,10 +508,6 @@ export class TripsService {
         `Cannot deactivate trip with id ${tripId} while it has active dates`,
       );
     }
-    await db.orm.public.Trip.where({ id: tripId }).update({
-      isActive: false,
-    });
-    return this.requireById(tripId);
   }
 
   /**

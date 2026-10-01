@@ -6,7 +6,7 @@ export class AssignOperatorDto {
   @ApiProperty({
     example: 7,
     description:
-      'Operator id. Existence is validated once Backend 1 lands (TODO).',
+      'Operator id. Must reference an existing, active operator (validated with 404).',
   })
   @Type(() => Number)
   @IsInt()

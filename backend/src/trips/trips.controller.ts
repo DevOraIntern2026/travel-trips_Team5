@@ -85,6 +85,10 @@ export class TripsController {
   @ApiParam({ name: 'tripId', example: 1 })
   @ApiResponse({ status: 200, description: 'The updated trip.' })
   @ApiResponse({ status: 404, description: 'Trip or destination not found.' })
+  @ApiResponse({
+    status: 409,
+    description: 'Trip has active dates and cannot be deactivated.',
+  })
   update(
     @Param('tripId', ParseIntPipe) tripId: number,
     @Body() dto: UpdateTripDto,

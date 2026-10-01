@@ -1329,6 +1329,14 @@
               "indexes": [
                 {
                   "columns": [
+                    "expiresAt"
+                  ],
+                  "name": "authToken_expiresAt_idx_6b6b8c10",
+                  "prefix": "authToken_expiresAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "userId"
                   ],
                   "name": "authToken_userId_idx_a489d58a",
@@ -1767,6 +1775,14 @@
               "indexes": [
                 {
                   "columns": [
+                    "expiresAt"
+                  ],
+                  "name": "refreshSession_expiresAt_idx_6b6b8c10",
+                  "prefix": "refreshSession_expiresAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "userId"
                   ],
                   "name": "refreshSession_userId_idx_a489d58a",
@@ -1881,6 +1897,14 @@
                   ],
                   "name": "trip_destinationId_idx_1646ee5c",
                   "prefix": "trip_destinationId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "operatorId"
+                  ],
+                  "name": "trip_operatorId_idx_a95ad064",
+                  "prefix": "trip_operatorId_idx",
                   "unique": false
                 }
               ],
@@ -2001,6 +2025,15 @@
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "startDate",
+                    "endDate"
+                  ],
+                  "name": "tripDate_startDate_endDate_idx_c734dcfc",
+                  "prefix": "tripDate_startDate_endDate_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "tripId"
@@ -2175,7 +2208,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "5486a734c9ce4efd6b7ecd26150ba18b5fdbdcf154a001e931d24d02c7eece43"
+    "storageHash": "2e087fd5b3f85e30ad3c1d1d45efe41b64979d678781e2cea7b22d1535a12d32"
   },
   "execution": {
     "executionHash": "37a0b7b3a161bdf3cc137516277840087853a4c37909848a27533ecd1f768d9e",

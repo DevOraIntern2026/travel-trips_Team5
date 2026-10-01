@@ -61,6 +61,10 @@ export class DestinationsController {
   @ApiResponse({ status: 200, description: 'The updated destination.' })
   @ApiResponse({ status: 404, description: 'Destination does not exist.' })
   @ApiResponse({ status: 409, description: 'Destination name already in use.' })
+  @ApiResponse({
+    status: 409,
+    description: 'Destination has active trips and cannot be deactivated.',
+  })
   update(
     @Param('destinationId', ParseIntPipe) destinationId: number,
     @Body() dto: UpdateDestinationDto,
@@ -76,6 +80,10 @@ export class DestinationsController {
   @ApiParam({ name: 'destinationId', example: 1 })
   @ApiResponse({ status: 200, description: 'The deactivated destination.' })
   @ApiResponse({ status: 404, description: 'Destination does not exist.' })
+  @ApiResponse({
+    status: 409,
+    description: 'Destination has active trips and cannot be deactivated.',
+  })
   remove(@Param('destinationId', ParseIntPipe) destinationId: number) {
     return this.destinations.remove(destinationId);
   }
