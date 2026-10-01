@@ -5,14 +5,14 @@ import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { AppModule, ObserveInstrument } from './app.module.js';
-import { setupSwagger } from './swagger.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     instrument: ObserveInstrument,
   });
 
-  // 1. Setup Swagger and Scalar Documentation first, so it bypasses Helmet's strict CSP shit
+  // 1. Setup Swagger and Scalar documentation first, so it bypasses
+  // Helmet's strict Content-Security-Policy.
   const config = new DocumentBuilder()
     .setTitle('API Docs')
     .setDescription('The API description')
@@ -20,11 +20,11 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  
+
   SwaggerModule.setup('docs', app, documentFactory, {
     jsonDocumentUrl: 'docs/openapi.json',
   });
-  
+
   app.use(
     '/reference',
     apiReference({
@@ -55,8 +55,6 @@ async function bootstrap() {
       transform: true, // Automatically transforms payloads to be objects typed according to their DTO classes
     }),
   );
-
-
 
   // Use the ConfigService to read variables from your .env file
   const configService = app.get(ConfigService);

@@ -27,7 +27,7 @@ import type { VerifyEmailDto } from './dto/verify-email.dto.js';
 
 type DbUser = Omit<
   Models.public_User,
-  'posts' | 'operator' | 'refreshSessions' | 'authTokens'
+  'posts' | 'operator' | 'bookings' | 'refreshSessions' | 'authTokens'
 >;
 
 export interface SafeUser {

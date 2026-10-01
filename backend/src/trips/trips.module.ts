@@ -1,26 +1,17 @@
 import { Module } from '@nestjs/common';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
-import { BOOKING_SEATS_PROVIDER } from '../bookings/booking-seats.port.js';
-import { NoopBookingSeatsProvider } from '../bookings/noop-booking-seats.provider.js';
+import { BookingsModule } from '../bookings/bookings.module.js';
 import { AdminTripsController } from './admin-trips.controller.js';
 import { OperatorTripsController } from './operator-trips.controller.js';
 import { TripsController } from './trips.controller.js';
 import { TripsService } from './trips.service.js';
 
 @Module({
+  imports: [BookingsModule],
   controllers: [TripsController, AdminTripsController, OperatorTripsController],
   // RolesGuard is provided here for direct instantiation in tests;
   // enforcement comes from its global APP_GUARD registration in AuthModule.
-  // The seats provider is scoped here (same as TripDatesModule) until
-  // Backend 3 supplies the real booking-count provider.
-  providers: [
-    TripsService,
-    RolesGuard,
-    {
-      provide: BOOKING_SEATS_PROVIDER,
-      useClass: NoopBookingSeatsProvider,
-    },
-  ],
+  providers: [TripsService, RolesGuard],
   exports: [TripsService],
 })
 export class TripsModule {}
