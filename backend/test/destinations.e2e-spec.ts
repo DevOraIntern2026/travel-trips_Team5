@@ -212,4 +212,41 @@ describe('Destinations (e2e)', () => {
       .get('/api/v1/destinations/abc')
       .expect(400);
   });
+
+  it('DELETE and PUT deactivation return 409 while active trips reference it', async () => {
+    const created = await db.orm.public.Destination.create(createPayload());
+    await db.orm.public.Trip.create({
+      destinationId: created.id,
+      name: 'Nile cruise',
+      durationDays: 3,
+    });
+
+    await request(app.getHttpServer())
+      .delete(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
+      .expect(409);
+
+    await request(app.getHttpServer())
+      .put(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
+      .send({ isActive: false })
+      .expect(409);
+  });
+
+  it('DELETE succeeds once referencing trips are deactivated', async () => {
+    const created = await db.orm.public.Destination.create(createPayload());
+    const trip = await db.orm.public.Trip.create({
+      destinationId: created.id,
+      name: 'Nile cruise',
+      durationDays: 3,
+    });
+    await db.orm.public.Trip.where({ id: trip.id }).update({
+      isActive: false,
+    });
+
+    await request(app.getHttpServer())
+      .delete(`/api/v1/destinations/${created.id}`)
+      .set('Authorization', adminAuth)
+      .expect(200);
+  });
 });

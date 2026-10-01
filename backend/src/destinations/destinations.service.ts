@@ -172,6 +172,10 @@ export class DestinationsService {
       return existing;
     }
 
+    if (dto.isActive === false && existing.isActive) {
+      await this.assertNoActiveTrips(destinationId);
+    }
+
     const result = await db.orm.public.Destination.where({
       id: destinationId,
     }).update({
@@ -187,9 +191,9 @@ export class DestinationsService {
 
   /**
    * Soft-delete: deactivates instead of hard-deleting so trips/bookings that
-   * reference the destination never break. Idempotent.
-   * TODO(trips): block deactivation with 409 while active trips reference
-   * this destination.
+   * reference the destination never break. Idempotent. Blocked with 409
+   * while active trips reference this destination — deactivate the trips
+   * first (same rule as PUT with isActive: false).
    */
   async remove(destinationId: number): Promise<Destination> {
     const existing = await db.orm.public.Destination.first({
@@ -203,11 +207,25 @@ export class DestinationsService {
     if (!existing.isActive) {
       return existing;
     }
+    await this.assertNoActiveTrips(destinationId);
     const result = await db.orm.public.Destination.where({
       id: destinationId,
     }).update({ isActive: false });
     const updated = Array.isArray(result) ? result[0] : result;
     return updated ?? { ...existing, isActive: false };
+  }
+
+  private async assertNoActiveTrips(destinationId: number): Promise<void> {
+    const liveTrip = await db.orm.public.Trip.where((t) =>
+      t.destinationId.eq(destinationId),
+    )
+      .where((t) => t.isActive.eq(true))
+      .first();
+    if (liveTrip) {
+      throw new ConflictException(
+        `Cannot deactivate destination with id ${destinationId} while it has active trips`,
+      );
+    }
   }
 
   /**

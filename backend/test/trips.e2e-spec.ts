@@ -235,6 +235,34 @@ describe('Trips (e2e)', () => {
       .expect(200);
   });
 
+  it('PUT /api/v1/trips/:id deactivation is blocked while active dates exist', async () => {
+    const created = await db.orm.public.Trip.create(createPayload());
+    const date = await db.orm.public.TripDate.create({
+      tripId: created.id,
+      startDate: '2026-10-01T10:00:00.000Z',
+      endDate: '2026-10-05T18:00:00.000Z',
+      price: '99.99',
+      capacity: 20,
+    });
+
+    await request(app.getHttpServer())
+      .put(`/api/v1/trips/${created.id}`)
+      .set('Authorization', adminAuth)
+      .send({ isActive: false })
+      .expect(409);
+
+    // After deactivating the date, PUT deactivation succeeds.
+    await db.orm.public.TripDate.where({ id: date.id }).update({
+      isActive: false,
+    });
+    const res = await request(app.getHttpServer())
+      .put(`/api/v1/trips/${created.id}`)
+      .set('Authorization', adminAuth)
+      .send({ isActive: false })
+      .expect(200);
+    expect(res.body.isActive).toBe(false);
+  });
+
   it('GET /api/v1/trips/:id/operator reports the assignment', async () => {
     const created = await db.orm.public.Trip.create(
       createPayload({ operatorId: companyId }),

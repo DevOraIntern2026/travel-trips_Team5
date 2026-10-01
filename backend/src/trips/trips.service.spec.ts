@@ -290,7 +290,7 @@ describe('TripsService', () => {
           tripId: 2,
           startDate: '2026-11-01T00:00:00.000Z',
           endDate: '2026-11-05T00:00:00.000Z',
-          price: 500.00,
+          price: 500.0,
           capacity: 10,
         },
       ]);
@@ -330,7 +330,7 @@ describe('TripsService', () => {
           tripId: 2,
           startDate: '2026-11-01T00:00:00.000Z',
           endDate: '2026-11-05T00:00:00.000Z',
-          price: 50.00,
+          price: 50.0,
           capacity: 25,
         },
       ]);
@@ -355,7 +355,7 @@ describe('TripsService', () => {
           tripId: 2,
           startDate: '2026-11-01T00:00:00.000Z',
           endDate: '2026-11-05T00:00:00.000Z',
-          price: 500.00,
+          price: 500.0,
           capacity: 10,
         },
         {
@@ -558,6 +558,28 @@ describe('TripsService', () => {
 
       expect(result).toBe(existing);
       expect(harness.collection.update).not.toHaveBeenCalled();
+    });
+
+    it('blocks deactivation with 409 while active dates exist', async () => {
+      harness.collection.first.mockResolvedValue(trip());
+      harness.tripDateCollection.first.mockResolvedValue({ id: 10 });
+
+      await expect(
+        service.update(1, { isActive: false }),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(harness.collection.update).not.toHaveBeenCalled();
+    });
+
+    it('allows deactivation via update when no active dates exist', async () => {
+      harness.collection.first.mockResolvedValue(trip());
+      harness.tripDateCollection.first.mockResolvedValue(null);
+      harness.collection.update.mockResolvedValue([{}]);
+
+      await service.update(1, { isActive: false });
+
+      expect(harness.collection.update).toHaveBeenCalledWith({
+        isActive: false,
+      });
     });
   });
 
