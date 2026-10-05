@@ -57,12 +57,20 @@ const STRENGTH_LABELS = ["None", "Weak", "Fair", "Good", "Strong"];
 
 const ROLES = [
     {
-        id: "traveler", title: "I'm a Traveler", badge: "Instant Hold", badgeClass: "badge-blue",
-        desc: "Book desert & mountain treks", Icon: CompassIcon
+        id: "customer", 
+        title: "I'm a Traveler", 
+        badge: "Instant Hold", 
+        badgeClass: "badge-blue",
+        desc: "Book desert & mountain treks",
+        Icon: CompassIcon
     },
     {
-        id: "operator", title: "Trip Operator", badge: "MTA Cert", badgeClass: "badge-orange",
-        desc: "Manage guides & routes", Icon: MountainIcon
+        id: "operator", 
+        title: "Trip Operator",
+        badge: "MTA Cert", 
+        badgeClass: "badge-orange",
+        desc: "Manage guides & routes", 
+        Icon: MountainIcon
     },
 ];
 
@@ -75,9 +83,9 @@ const emptyErrors = {
 };
 
 export default function Register() {
-    const [role, setRole] = useState("traveler");
+    const [role, setRole] = useState("customer");
     const [userData, setUserData] = useState({
-        fullName: "",
+        name: "",
         email: "", 
         password: "", 
         passwordConfirm: "", 
@@ -93,7 +101,7 @@ export default function Register() {
     
     function validation() {
         const errs = { ...emptyErrors };
-        if (!regex.name.test(userData.fullName.trim())) errs.name = "Enter your full legal name (min 3 characters)";
+        if (!regex.name.test(userData.name.trim())) errs.name = "Enter your full legal name (min 3 characters)";
         if (!regex.email.test(userData.email.trim())) errs.email = "Email format not valid, e.g. name@expedition.eg";
         if (!regex.password.test(userData.password)) errs.password = "Password needs 8+ characters and at least 1 number";
         if (!userData.passwordConfirm || userData.passwordConfirm !== userData.password)
@@ -112,21 +120,21 @@ export default function Register() {
 
         setLoading(true);
         try {
-            const res = await fetch("API_URL", {
+            const res = await fetch("http://localhost:3000/api/v1/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     role,
-                    fullName: userData.fullName.trim(),
+                    name: userData.name.trim(),
                     email: userData.email.trim(),
                     password: userData.password,
-                }), // passwordConfirm and terms are not sent to the API
+                }), 
             });
             const data = await res.json();
 
             if (res.ok) {
                 setUserData({ 
-                    fullName: "", 
+                    name: "", 
                     email: "", password: "",
                     passwordConfirm: "",
                     terms: false });
@@ -137,6 +145,7 @@ export default function Register() {
         } catch (err) {
             setServerMsg("Server error. Check your connection and try again.");
         } finally {
+            console.log("Selected role:", role);
             setLoading(false);
         }
     }
@@ -166,8 +175,8 @@ export default function Register() {
                         </p>
 
                         <div className="whyBox">
-                            <h3><CompassIcon size={15} /> Why sign up as a {role === "traveler" ? "Traveler" : "Trip Operator"}?</h3>
-                            {role === "traveler" ? (
+                            <h3><CompassIcon size={15} /> Why sign up as a {role === "customer" ? "Traveler" : "Trip Operator"}?</h3>
+                            {role === "customer" ? (
                                 <ul>
                                     <li><CheckCircle size={14} />Instant seat holds on verified St. Catherine &amp; White Desert routes</li>
                                     <li><CheckCircle size={14} />Direct contact with licensed Bedouin guides &amp; MTA drivers</li>
@@ -236,9 +245,9 @@ export default function Register() {
 
                     <div className="fieldGrid">
                         <div className="field">
-                            <div className="fieldHead"><label htmlFor="fullName">Full Legal Name <b>*</b></label></div>
-                            <input id="fullName" name="fullName" type="text" autoComplete="name"
-                                placeholder="e.g., Karim Al-Masri" value={userData.fullName} onChange={handleChange}
+                            <div className="fieldHead"><label htmlFor="name">Full Legal Name <b>*</b></label></div>
+                            <input id="name" name="name" type="text" autoComplete="name"
+                                placeholder="e.g., Karim Al-Masri" value={userData.name} onChange={handleChange}
                                 className={error.name ? "invalid" : ""} />
                             {error.name && <p className="fieldError userError">{error.name}</p>}
                         </div>

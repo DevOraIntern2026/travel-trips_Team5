@@ -1,11 +1,11 @@
 import { Link, } from "react-router-dom"
-import homeIcon from "../../src/assets/images/expeditionImages/homeIcon.png"
+import homeIcon from "../../assets/images/expeditionImages/homeIcon.png"
 import "./expeditionDiscovery.css"
-import verify from "../assets/images/expeditionImages/verify.png"
-import destinationImage from "../assets/images/expeditionImages/Icon.png"
-import windowImage from "../assets/images/expeditionImages/window.png"
-import travelerImage from "../assets/images/expeditionImages/traveler.png"
-import searchIcon from "../assets/images/expeditionImages/search.png"
+import verify from "../../assets/images/expeditionImages/verify.png"
+import destinationImage from "../../assets/images/expeditionImages/Icon.png"
+import windowImage from "../../assets/images/expeditionImages/window.png"
+import travelerImage from "../../assets/images/expeditionImages/traveler.png"
+import searchIcon from "../../assets/images/expeditionImages/search.png"
 import { useState } from "react"
 export default function ExpeditionDiscovery() {
   const [count, setCount] = useState(0);
