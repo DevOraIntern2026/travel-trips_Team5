@@ -1,0 +1,566 @@
+[
+  {
+    "id": "table.booking",
+    "label": "Create table \"booking\"",
+    "summary": "Creates table \"booking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "booking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"booking\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"booking\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"booking\"",
+        "sql": "CREATE TABLE \"public\".\"booking\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"customerId\" int4 NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"price\" numeric NOT NULL,\n  \"status\" text DEFAULT 'Confirmed' NOT NULL,\n  \"tripDateId\" int4 NOT NULL,\n  \"tripId\" int4 NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"booking_status_check_0200d7e3\" CHECK (\"status\" IN ('Confirmed', 'Cancelled'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"booking\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"booking\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.trip.cancellationWindowHours",
+    "label": "Add column \"cancellationWindowHours\" to \"trip\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "cancellationWindowHours",
+        "table": "trip"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"cancellationWindowHours\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "trip",
+          "cancellationWindowHours"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"cancellationWindowHours\"",
+        "sql": "ALTER TABLE \"public\".\"trip\" ADD COLUMN \"cancellationWindowHours\" int4 DEFAULT 24 NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"cancellationWindowHours\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "trip",
+          "cancellationWindowHours"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.tripDate.bookedSeats",
+    "label": "Add column \"bookedSeats\" to \"tripDate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "bookedSeats",
+        "table": "tripDate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"bookedSeats\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "tripDate",
+          "bookedSeats"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"bookedSeats\"",
+        "sql": "ALTER TABLE \"public\".\"tripDate\" ADD COLUMN \"bookedSeats\" int4 DEFAULT 0 NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"bookedSeats\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "tripDate",
+          "bookedSeats"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.tripDate.tripdate_capacity_check_3ee2feb7",
+    "label": "Add check constraint \"tripdate_capacity_check_3ee2feb7\" on \"tripDate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "tripdate_capacity_check_3ee2feb7",
+        "table": "tripDate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"tripdate_capacity_check_3ee2feb7\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tripdate_capacity_check_3ee2feb7",
+          "public",
+          "\"public\".\"tripDate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"tripdate_capacity_check_3ee2feb7\"",
+        "sql": "ALTER TABLE \"public\".\"tripDate\" ADD CONSTRAINT \"tripdate_capacity_check_3ee2feb7\" CHECK (\"capacity\" >= \"bookedSeats\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"tripdate_capacity_check_3ee2feb7\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tripdate_capacity_check_3ee2feb7",
+          "public",
+          "\"public\".\"tripDate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.authToken.authToken_expiresAt_idx_6b6b8c10",
+    "label": "Create index \"authToken_expiresAt_idx_6b6b8c10\" on \"authToken\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "authToken_expiresAt_idx_6b6b8c10",
+        "table": "authToken"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"authToken_expiresAt_idx_6b6b8c10\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"authToken_expiresAt_idx_6b6b8c10\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"authToken_expiresAt_idx_6b6b8c10\"",
+        "sql": "CREATE INDEX \"authToken_expiresAt_idx_6b6b8c10\" ON \"public\".\"authToken\" (\"expiresAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"authToken_expiresAt_idx_6b6b8c10\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"authToken_expiresAt_idx_6b6b8c10\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.booking.booking_customerId_idx_b2a8a46c",
+    "label": "Create index \"booking_customerId_idx_b2a8a46c\" on \"booking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "booking_customerId_idx_b2a8a46c",
+        "table": "booking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"booking_customerId_idx_b2a8a46c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"booking_customerId_idx_b2a8a46c\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"booking_customerId_idx_b2a8a46c\"",
+        "sql": "CREATE INDEX \"booking_customerId_idx_b2a8a46c\" ON \"public\".\"booking\" (\"customerId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"booking_customerId_idx_b2a8a46c\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"booking_customerId_idx_b2a8a46c\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.booking.booking_tripDateId_idx_a5fef724",
+    "label": "Create index \"booking_tripDateId_idx_a5fef724\" on \"booking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "booking_tripDateId_idx_a5fef724",
+        "table": "booking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"booking_tripDateId_idx_a5fef724\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"booking_tripDateId_idx_a5fef724\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"booking_tripDateId_idx_a5fef724\"",
+        "sql": "CREATE INDEX \"booking_tripDateId_idx_a5fef724\" ON \"public\".\"booking\" (\"tripDateId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"booking_tripDateId_idx_a5fef724\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"booking_tripDateId_idx_a5fef724\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.booking.booking_tripId_idx_75da6d97",
+    "label": "Create index \"booking_tripId_idx_75da6d97\" on \"booking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "booking_tripId_idx_75da6d97",
+        "table": "booking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"booking_tripId_idx_75da6d97\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"booking_tripId_idx_75da6d97\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"booking_tripId_idx_75da6d97\"",
+        "sql": "CREATE INDEX \"booking_tripId_idx_75da6d97\" ON \"public\".\"booking\" (\"tripId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"booking_tripId_idx_75da6d97\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"booking_tripId_idx_75da6d97\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refreshSession.refreshSession_expiresAt_idx_6b6b8c10",
+    "label": "Create index \"refreshSession_expiresAt_idx_6b6b8c10\" on \"refreshSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refreshSession_expiresAt_idx_6b6b8c10",
+        "table": "refreshSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refreshSession_expiresAt_idx_6b6b8c10\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refreshSession_expiresAt_idx_6b6b8c10\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refreshSession_expiresAt_idx_6b6b8c10\"",
+        "sql": "CREATE INDEX \"refreshSession_expiresAt_idx_6b6b8c10\" ON \"public\".\"refreshSession\" (\"expiresAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refreshSession_expiresAt_idx_6b6b8c10\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refreshSession_expiresAt_idx_6b6b8c10\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.trip.trip_operatorId_idx_a95ad064",
+    "label": "Create index \"trip_operatorId_idx_a95ad064\" on \"trip\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "trip_operatorId_idx_a95ad064",
+        "table": "trip"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"trip_operatorId_idx_a95ad064\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"trip_operatorId_idx_a95ad064\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"trip_operatorId_idx_a95ad064\"",
+        "sql": "CREATE INDEX \"trip_operatorId_idx_a95ad064\" ON \"public\".\"trip\" (\"operatorId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"trip_operatorId_idx_a95ad064\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"trip_operatorId_idx_a95ad064\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.tripDate.tripDate_startDate_endDate_idx_c734dcfc",
+    "label": "Create index \"tripDate_startDate_endDate_idx_c734dcfc\" on \"tripDate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "tripDate_startDate_endDate_idx_c734dcfc",
+        "table": "tripDate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"tripDate_startDate_endDate_idx_c734dcfc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tripDate_startDate_endDate_idx_c734dcfc\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"tripDate_startDate_endDate_idx_c734dcfc\"",
+        "sql": "CREATE INDEX \"tripDate_startDate_endDate_idx_c734dcfc\" ON \"public\".\"tripDate\" (\"startDate\", \"endDate\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"tripDate_startDate_endDate_idx_c734dcfc\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tripDate_startDate_endDate_idx_c734dcfc\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.booking.booking_customerId_fkey",
+    "label": "Add foreign key \"booking_customerId_fkey\" on \"booking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "booking_customerId_fkey",
+        "table": "booking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"booking_customerId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "booking_customerId_fkey",
+          "public",
+          "\"public\".\"booking\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"booking_customerId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"booking\"\nADD CONSTRAINT \"booking_customerId_fkey\"\nFOREIGN KEY (\"customerId\")\nREFERENCES \"public\".\"user\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"booking_customerId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "booking_customerId_fkey",
+          "public",
+          "\"public\".\"booking\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.booking.booking_tripId_fkey",
+    "label": "Add foreign key \"booking_tripId_fkey\" on \"booking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "booking_tripId_fkey",
+        "table": "booking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"booking_tripId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "booking_tripId_fkey",
+          "public",
+          "\"public\".\"booking\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"booking_tripId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"booking\"\nADD CONSTRAINT \"booking_tripId_fkey\"\nFOREIGN KEY (\"tripId\")\nREFERENCES \"public\".\"trip\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"booking_tripId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "booking_tripId_fkey",
+          "public",
+          "\"public\".\"booking\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.booking.booking_tripDateId_fkey",
+    "label": "Add foreign key \"booking_tripDateId_fkey\" on \"booking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "booking_tripDateId_fkey",
+        "table": "booking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"booking_tripDateId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "booking_tripDateId_fkey",
+          "public",
+          "\"public\".\"booking\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"booking_tripDateId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"booking\"\nADD CONSTRAINT \"booking_tripDateId_fkey\"\nFOREIGN KEY (\"tripDateId\")\nREFERENCES \"public\".\"tripDate\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"booking_tripDateId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "booking_tripDateId_fkey",
+          "public",
+          "\"public\".\"booking\""
+        ]
+      }
+    ]
+  }
+]

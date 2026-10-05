@@ -1,0 +1,163 @@
+// use prisma-8
+
+enum BookingStatus {
+  Confirmed
+  Cancelled
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  passwordHash    String?
+  username        String?
+  name            String?
+  role            UserRole  @default(Customer)
+  operatorId      Int?
+  operator        Operator? @relation(fields: [operatorId], references: [id])
+  emailVerifiedAt TimestamptzString?
+  isActive        Boolean   @default(true)
+  posts           Post[]
+  bookings        Booking[]
+  refreshSessions RefreshSession[]
+  authTokens      AuthToken[]
+  createdAt       TimestamptzString @default(now())
+  updatedAt       temporal.updatedAtString()
+
+  @@index([operatorId])
+}
+
+enum UserRole {
+  @@type("pg/text@1")
+  Admin    = "admin"
+  Operator = "operator"
+  Customer = "customer"
+}
+
+enum AuthTokenPurpose {
+  @@type("pg/text@1")
+  VerifyEmail   = "verify-email"
+  ResetPassword = "reset-password"
+}
+
+model Operator {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  users       User[]
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+}
+
+model RefreshSession {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  tokenHash  String   @unique
+  expiresAt  TimestamptzString
+  revokedAt  TimestamptzString?
+  createdAt  TimestamptzString @default(now())
+  updatedAt  temporal.updatedAtString()
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuthToken {
+  id         Int              @id @default(autoincrement())
+  userId     Int
+  user       User             @relation(fields: [userId], references: [id])
+  purpose    AuthTokenPurpose
+  tokenHash  String           @unique
+  expiresAt  TimestamptzString
+  consumedAt TimestamptzString?
+  createdAt  TimestamptzString @default(now())
+  updatedAt  temporal.updatedAtString()
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@index([authorId])
+}
+
+model Destination {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  city        String
+  country     String
+  isActive    Boolean  @default(true)
+  trips       Trip[]
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+}
+
+model Trip {
+  id            Int         @id @default(autoincrement())
+  destinationId Int
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  operatorId    Int?
+  name          String
+  description   String?
+  durationDays  Int
+  isActive      Boolean     @default(true)
+  dates         TripDate[]
+  bookings      Booking[]
+  cancellationWindowHours Int @default(24)
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
+
+  @@index([destinationId])
+  @@index([operatorId])
+}
+
+model TripDate {
+  id        Int      @id @default(autoincrement())
+  tripId    Int
+  trip      Trip     @relation(fields: [tripId], references: [id])
+  startDate TimestamptzString
+  endDate   TimestamptzString
+  price     Decimal
+  capacity  Int
+  isActive  Boolean  @default(true)
+  bookedSeats Int @default(0)
+  bookings  Booking[]
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@check(expression: "price >= 0", name: "tripdate_price_non_negative")
+  @@check(expression: "capacity > 0", name: "tripdate_capacity_positive")
+  @@check(expression: "\"endDate\" >= \"startDate\"", name: "tripdate_end_after_start")
+  @@check(expression: "\"capacity\" >= \"bookedSeats\"", name: "tripdate_capacity_check")
+
+  @@index([tripId])
+  @@index([startDate, endDate])
+}
+
+model Booking {
+  id         Int      @id @default(autoincrement())
+  customerId Int
+  customer   User     @relation(fields: [customerId], references: [id])
+  tripId     Int
+  trip       Trip     @relation(fields: [tripId], references: [id])
+  tripDateId Int
+  tripDate   TripDate @relation(fields: [tripDateId], references: [id])
+  status     BookingStatus @default(Confirmed)
+  price      Decimal
+  createdAt  TimestamptzString @default(now())
+  updatedAt  temporal.updatedAtString()
+
+  @@index([customerId])
+  @@index([tripId])
+  @@index([tripDateId])
+}

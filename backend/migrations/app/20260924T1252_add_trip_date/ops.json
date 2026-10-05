@@ -1,0 +1,122 @@
+[
+  {
+    "id": "table.tripDate",
+    "label": "Create table \"tripDate\"",
+    "summary": "Creates table \"tripDate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "tripDate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"tripDate\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tripDate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"tripDate\"",
+        "sql": "CREATE TABLE \"public\".\"tripDate\" (\n  \"capacity\" int4 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"endDate\" timestamptz NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"isActive\" bool DEFAULT true NOT NULL,\n  \"price\" numeric NOT NULL,\n  \"startDate\" timestamptz NOT NULL,\n  \"tripId\" int4 NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"tripdate_capacity_positive_2e07dccc\" CHECK (capacity > 0),\n  CONSTRAINT \"tripdate_end_after_start_cd17f3f0\" CHECK (\"endDate\" >= \"startDate\"),\n  CONSTRAINT \"tripdate_price_non_negative_faabb23d\" CHECK (price >= 0)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"tripDate\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tripDate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.tripDate.tripDate_tripId_idx_75da6d97",
+    "label": "Create index \"tripDate_tripId_idx_75da6d97\" on \"tripDate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "tripDate_tripId_idx_75da6d97",
+        "table": "tripDate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"tripDate_tripId_idx_75da6d97\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tripDate_tripId_idx_75da6d97\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"tripDate_tripId_idx_75da6d97\"",
+        "sql": "CREATE INDEX \"tripDate_tripId_idx_75da6d97\" ON \"public\".\"tripDate\" (\"tripId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"tripDate_tripId_idx_75da6d97\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tripDate_tripId_idx_75da6d97\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.tripDate.tripDate_tripId_fkey",
+    "label": "Add foreign key \"tripDate_tripId_fkey\" on \"tripDate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "tripDate_tripId_fkey",
+        "table": "tripDate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"tripDate_tripId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tripDate_tripId_fkey",
+          "public",
+          "\"public\".\"tripDate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"tripDate_tripId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"tripDate\"\nADD CONSTRAINT \"tripDate_tripId_fkey\"\nFOREIGN KEY (\"tripId\")\nREFERENCES \"public\".\"trip\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"tripDate_tripId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tripDate_tripId_fkey",
+          "public",
+          "\"public\".\"tripDate\""
+        ]
+      }
+    ]
+  }
+]
