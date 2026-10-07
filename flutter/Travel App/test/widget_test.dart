@@ -1,30 +1,37 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'package:devora_trips/app.dart';
+import 'package:devora_trips/core/di/service_locator.dart';
+import 'package:devora_trips/core/networking/api_result.dart';
+import 'package:devora_trips/feature/booking/data/models/booking_model.dart';
+import 'package:devora_trips/feature/booking/data/repo/booking_repo.dart';
+import 'package:devora_trips/feature/booking/presentation/cubit/booking_history_cubit.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:devora_trips/main.dart';
+class _FakeBookingRepo extends BookingRepo {
+  _FakeBookingRepo() : super(Dio());
+
+  @override
+  Future<ApiResult<List<BookingModel>>> getBookings({
+    int page = 1,
+    int limit = 10,
+  }) async {
+    return Success(const <BookingModel>[]);
+  }
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  setUp(() {
+    getIt.registerLazySingleton<BookingRepo>(_FakeBookingRepo.new);
+    getIt.registerFactory<BookingHistoryCubit>(
+      () => BookingHistoryCubit(getIt<BookingRepo>()),
+    );
+  });
+
+  testWidgets('App renders my bookings screen', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('My Bookings'), findsOneWidget);
+    expect(find.text('No bookings yet'), findsOneWidget);
   });
 }
