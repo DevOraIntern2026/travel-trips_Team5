@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'5486a734c9ce4efd6b7ecd26150ba18b5fdbdcf154a001e931d24d02c7eece43'>;
+  StorageHashBase<'2e087fd5b3f85e30ad3c1d1d45efe41b64979d678781e2cea7b22d1535a12d32'>;
 export type ExecutionHash =
   ExecutionHashBase<'37a0b7b3a161bdf3cc137516277840087853a4c37909848a27533ecd1f768d9e'>;
 export type ProfileHash =
@@ -836,6 +836,12 @@ type ContractBase = Omit<
                   readonly columns: readonly ['userId'];
                   readonly unique: false;
                 },
+                {
+                  readonly name: 'authToken_expiresAt_idx_6b6b8c10';
+                  readonly prefix: 'authToken_expiresAt_idx';
+                  readonly columns: readonly ['expiresAt'];
+                  readonly unique: false;
+                },
               ];
               foreignKeys: readonly [
                 {
@@ -1184,6 +1190,12 @@ type ContractBase = Omit<
                   readonly columns: readonly ['userId'];
                   readonly unique: false;
                 },
+                {
+                  readonly name: 'refreshSession_expiresAt_idx_6b6b8c10';
+                  readonly prefix: 'refreshSession_expiresAt_idx';
+                  readonly columns: readonly ['expiresAt'];
+                  readonly unique: false;
+                },
               ];
               foreignKeys: readonly [
                 {
@@ -1275,6 +1287,12 @@ type ContractBase = Omit<
                   readonly columns: readonly ['destinationId'];
                   readonly unique: false;
                 },
+                {
+                  readonly name: 'trip_operatorId_idx_a95ad064';
+                  readonly prefix: 'trip_operatorId_idx';
+                  readonly columns: readonly ['operatorId'];
+                  readonly unique: false;
+                },
               ];
               foreignKeys: readonly [
                 {
@@ -1364,6 +1382,12 @@ type ContractBase = Omit<
                   readonly name: 'tripDate_tripId_idx_75da6d97';
                   readonly prefix: 'tripDate_tripId_idx';
                   readonly columns: readonly ['tripId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'tripDate_startDate_endDate_idx_c734dcfc';
+                  readonly prefix: 'tripDate_startDate_endDate_idx';
+                  readonly columns: readonly ['startDate', 'endDate'];
                   readonly unique: false;
                 },
               ];

@@ -23,18 +23,28 @@ const harness = vi.hoisted(() => {
   };
   const collection = build();
   const txCollection = build();
+  const tripCollection = build();
   const namespace = {
     where: vi.fn(() => collection),
     first: vi.fn(),
     create: vi.fn(),
   };
+  const tripNamespace = { where: vi.fn(() => tripCollection) };
   const txNamespace = { where: vi.fn(() => txCollection) };
   const txDb = { orm: { public: { Destination: txNamespace } } };
   const db = {
-    orm: { public: { Destination: namespace } },
+    orm: { public: { Destination: namespace, Trip: tripNamespace } },
     transaction: vi.fn((cb) => cb(txDb)),
   };
-  return { db, namespace, collection, txNamespace, txCollection };
+  return {
+    db,
+    namespace,
+    collection,
+    tripNamespace,
+    tripCollection,
+    txNamespace,
+    txCollection,
+  };
 });
 
 vi.mock('../prisma/db.js', () => ({ db: harness.db }));
@@ -61,6 +71,8 @@ describe('DestinationsService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     harness.namespace.where.mockReturnValue(harness.collection);
+    harness.tripNamespace.where.mockReturnValue(harness.tripCollection);
+    harness.tripCollection.first.mockResolvedValue(null);
     harness.txNamespace.where.mockReturnValue(harness.txCollection);
     service = new DestinationsService();
   });
@@ -264,6 +276,62 @@ describe('DestinationsService', () => {
       await expect(service.remove(999)).rejects.toBeInstanceOf(
         NotFoundException,
       );
+    });
+
+    it('blocks deactivation with 409 while active trips reference it', async () => {
+      harness.namespace.first.mockResolvedValue(destination());
+      harness.tripCollection.first.mockResolvedValue({ id: 5 });
+
+      await expect(service.remove(1)).rejects.toBeInstanceOf(ConflictException);
+      expect(harness.collection.update).not.toHaveBeenCalled();
+    });
+
+    it('deactivates when only inactive trips reference it', async () => {
+      harness.namespace.first.mockResolvedValue(destination());
+      harness.tripCollection.first.mockResolvedValue(null);
+      harness.collection.update.mockResolvedValue([
+        destination({ isActive: false }),
+      ]);
+
+      const result = await service.remove(1);
+
+      expect(result.isActive).toBe(false);
+    });
+  });
+
+  describe('deactivation guard on update', () => {
+    it('blocks isActive: false with 409 while active trips reference it', async () => {
+      harness.namespace.first.mockResolvedValue(destination());
+      harness.tripCollection.first.mockResolvedValue({ id: 5 });
+
+      await expect(
+        service.update(1, { isActive: false }),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(harness.collection.update).not.toHaveBeenCalled();
+    });
+
+    it('allows deactivation when no active trips reference it', async () => {
+      harness.namespace.first.mockResolvedValue(destination());
+      harness.tripCollection.first.mockResolvedValue(null);
+      harness.collection.update.mockResolvedValue([
+        destination({ isActive: false }),
+      ]);
+
+      const result = await service.update(1, { isActive: false });
+
+      expect(result.isActive).toBe(false);
+    });
+
+    it('does not consult trips for non-deactivating updates', async () => {
+      harness.namespace.first.mockResolvedValue(destination());
+      harness.collection.first.mockResolvedValue(null);
+      harness.collection.update.mockResolvedValue([
+        destination({ city: 'Giza' }),
+      ]);
+
+      await service.update(1, { city: 'Giza' });
+
+      expect(harness.tripNamespace.where).not.toHaveBeenCalled();
     });
   });
 });

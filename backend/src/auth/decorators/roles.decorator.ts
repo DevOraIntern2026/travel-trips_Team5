@@ -9,7 +9,7 @@ export type UserRole = 'Admin' | 'Operator' | 'Customer';
 export const ROLES_KEY = 'roles';
 
 /**
- * Declares which roles may access a route. Enforced by RolesGuard once it is
- * registered (TODO(backend-1)). Until then the metadata documents intent.
+ * Declares which roles may access a route. Enforced by the globally
+ * registered RolesGuard.
  */
 export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);

@@ -1,9 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import {
-  ThrottlerStorage,
-  type ThrottlerStorageRecord,
-} from '@nestjs/throttler';
+import { ThrottlerStorage } from '@nestjs/throttler';
 import { App } from 'supertest/types';
 import { AppModule } from '../../src/app.module.js';
 import { setupSwagger } from '../../src/swagger.js';
@@ -19,7 +16,7 @@ type ModuleBuilder = ReturnType<typeof Test.createTestingModule>;
  * reliably replace APP_GUARD registrations, hence this approach.)
  */
 const noopThrottlerStorage: ThrottlerStorage = {
-  async increment(): Promise<ThrottlerStorageRecord> {
+  async increment() {
     return {
       totalHits: 0,
       timeToExpire: 0,

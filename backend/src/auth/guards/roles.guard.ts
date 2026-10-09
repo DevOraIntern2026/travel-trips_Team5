@@ -20,8 +20,8 @@ interface AuthenticatedRequest {
  * Backend 1 auth guard). Deny-by-default: a route requiring roles rejects
  * missing users, missing roles, and unknown role strings.
  *
- * NOT registered yet (TODO(backend-1)): register as a global APP_GUARD together
- * with the Backend 1 JWT guard that populates `request.user`.
+ * Registered globally (APP_GUARD) in AuthModule together with JwtAuthGuard:
+ * authentication first, authorization after.
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
