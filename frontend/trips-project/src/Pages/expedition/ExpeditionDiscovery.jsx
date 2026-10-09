@@ -7,8 +7,10 @@ import windowImage from "../../assets/images/expeditionImages/window.png"
 import travelerImage from "../../assets/images/expeditionImages/traveler.png"
 import searchIcon from "../../assets/images/expeditionImages/search.png"
 import { useState } from "react"
-export default function expeditionDiscovery() {
+export default function ExpeditionDiscovery() {
   const [count, setCount] = useState(0);
+  const [activeType, setActiveType] = useState("Expedition");
+  const typesList = ["Expedition", "Alpine Trek", "Coastal Safari", "Cultural"];
 
   return (
     <div className="ExpeditionContainer">
@@ -87,11 +89,9 @@ export default function expeditionDiscovery() {
             <div className="expeditionsTypes">
               <span className="expeditionsTypesText">TYPE:</span>
               <ul className="expeditionsTypesList">
-                
-                <li>Expedition</li>
-                <li>Alpine Trek</li>
-                <li>Coastal Safari</li>  
-                <li>Cultural</li>
+                {typesList.map((type, index)=>{
+                  return <li onClick={() => setActiveType(type)} className={activeType === type?"activeType":"inactiveType"} key={`${index}-${type}`}>{type}</li>
+                })}
               </ul>
             </div>
           </div>

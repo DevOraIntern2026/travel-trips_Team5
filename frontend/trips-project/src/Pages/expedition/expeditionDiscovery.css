@@ -165,7 +165,7 @@
 }
 .expeditionsTypesList li{
   cursor: pointer;
-    height: 50px;
+    height: 28px;
     align-items: center;
     display: flex;
     justify-content: center;  
@@ -173,4 +173,8 @@
   width: 100%;
   font-size: 12px;
   font-weight: 600;
+}
+.expeditionsTypesList li.activeType{
+  background-color: #003230;
+  color: #FFFFFF;
 }

@@ -4,11 +4,12 @@ import { User } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const links = [
-  { name: "Explore Expeditions", path: "/Explore Expeditions" },
+  { name: "ExploreExpeditions", path: "/explore-expeditions" },
   { name: "Destinations", path: "#" },
-  { name: "How It Works", path: "/How It Works" },
+  { name: "How It Works", path: "/how-it-works" },
   { name: "About", path: "/about" },
-  { name: "My Booking", path: "/MyBooking" },
+  { name: "MyBooking", path: "/my-booking" },
+  { name: "ExpeditionDiscovery", path: "/home/expedition" },
 ];
 
 export default function NavLinkbar() {
