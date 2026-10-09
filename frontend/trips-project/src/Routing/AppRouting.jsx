@@ -7,9 +7,11 @@ import Login from "../Pages/Login/Login";
 import Register from "../Pages/Register/Register";
 import MainLayout from "../Layout/MaineLayout";
 import NotFound from "../Pages/NotFound/NotFound";
-import ExploreExpeditions from "../Pages/Explore/ExploreExpeditions";
+import ExploreExpeditions from "../Pages/Explore/ExploreExpeditions.jsx";
 import HowItWorks from "../Pages/HowItWorks/HowItWorks";
 import MyBooking from "../Pages/MyBooking";
+import ExpeditionDiscovery from "../Pages/expedition/ExpeditionDiscovery.jsx";
+import ExpeditionExplore from "../Pages/expeditionExplore/ExpeditionExplore.jsx";
 
 export const router = createBrowserRouter([
  {

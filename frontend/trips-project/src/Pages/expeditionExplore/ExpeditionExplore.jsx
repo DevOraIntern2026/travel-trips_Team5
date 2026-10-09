@@ -49,7 +49,7 @@ const departures = [
   { id: "c", dates: "Dec 12 – Dec 18", note: "Summer Solstice Expedition", badge: "Full • Sold Out", tone: "ghost", action: "Waitlist Only", disabled: true },
 ];
 
-export default function ExpeditionPage() {
+export default function ExpeditionExplore() {
   const [dep, setDep] = useState("a");
   const [pax, setPax] = useState(2);
   const total = 1450 * pax;

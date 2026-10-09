@@ -4,7 +4,7 @@ import { User } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const links = [
-  { name: "Explore Expeditions", path: "Explore Expeditions" },
+  { name: "Explore Expeditions", path: "/Explore Expeditions" },
   { name: "Destinations", path: "#" },
   { name: "How It Works", path: "/How It Works" },
   { name: "About", path: "/about" },

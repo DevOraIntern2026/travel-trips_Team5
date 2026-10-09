@@ -7,7 +7,7 @@ import windowImage from "../../assets/images/expeditionImages/window.png"
 import travelerImage from "../../assets/images/expeditionImages/traveler.png"
 import searchIcon from "../../assets/images/expeditionImages/search.png"
 import { useState } from "react"
-export default function ExpeditionDiscovery() {
+export default function expeditionDiscovery() {
   const [count, setCount] = useState(0);
 
   return (
