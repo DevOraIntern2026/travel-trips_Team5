@@ -1,15 +1,17 @@
 import { createBrowserRouter } from "react-router-dom";
 import Home from "../Pages/Home/Home";
 import About from "../Pages/About/About";
-import Contact from "../Pages/Contact/Contact";
-import Trips from "../Pages/Trips/Trips";
+
 import Login from "../Pages/Login/Login";
 
 import Register from "../Pages/Register/Register";
 import MainLayout from "../Layout/MaineLayout";
 import NotFound from "../Pages/NotFound/NotFound";
-import ExpeditionDiscovery from "../Pages/expedition/ExpeditionDiscovery";
-import ExpeditionExplore from "../Pages/expeditionExplore/ExpeditionExplore";
+import ExploreExpeditions from "../Pages/Explore/ExploreExpeditions.jsx";
+import HowItWorks from "../Pages/HowItWorks/HowItWorks";
+import MyBooking from "../Pages/MyBooking";
+import ExpeditionDiscovery from "../Pages/expedition/ExpeditionDiscovery.jsx";
+import ExpeditionExplore from "../Pages/expeditionExplore/ExpeditionExplore.jsx";
 
 export const router = createBrowserRouter([
  {
@@ -32,12 +34,16 @@ export const router = createBrowserRouter([
     element: <About />,
   },
   {
-    path: "/contact",
-    element: <Contact />,
+    path: "Explore Expeditions",
+    element: <ExploreExpeditions/>,
   },
   {
-    path: "/trips",
-    element: <Trips/>,
+    path: "/How It Works",
+    element: <HowItWorks/>,
+  },
+  {
+    path: "/my booking",
+    element: <MyBooking/>,
   },
   {
     path:"/login",
