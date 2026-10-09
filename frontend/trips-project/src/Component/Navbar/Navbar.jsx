@@ -1,144 +1,85 @@
 
 import { useState } from "react";
-  import { Link } from "react-router-dom";
-  import {
-    FiSearch,
-    FiSliders,
-    FiMenu,
-    FiX,
-    FiUser,
-  } from "react-icons/fi";
-export default function Navbar() {
-  
+import { User } from "lucide-react";
+import { Link } from "react-router-dom";
 
-  const [isOpen, setIsOpen] = useState(false);
+const links = [
+  { name: "Explore Expeditions", path: "Explore Expeditions" },
+  { name: "Destinations", path: "#" },
+  { name: "How It Works", path: "/How It Works" },
+  { name: "About", path: "/about" },
+  { name: "My Booking", path: "/MyBooking" },
+];
 
-  const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Trips", path: "/trips" },
-    { name: "Destinations", path: "/destinations" },
-    { name: "About", path: "/about" },
-  ];
+export default function NavLinkbar() {
+  const [currency, setCurrency] = useState("USD");
 
   return (
-    <nav className="w-full bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="bg-white/70 backdrop-blur sticky top-0 z-50">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
 
-        <div className="h-16 flex items-center justify-between">
+        {/* Logo + Links */}
+        <div className="flex items-center gap-10">
+          <Link to="/" className="flex items-center gap-2">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-brand bg-brand text-lg font-extrabold text-white">
+              T
+            </span>
 
-          {/* Logo */}
-          <Link to="/" className="text-2xl font-bold">
-            Travel
+            <span className="text-lg font-bold text-brand">
+              TravelOra
+            </span>
           </Link>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="text-gray-700 hover:text-black transition"
+          <ul className="hidden items-center gap-6 md:flex">
+            {links.map((link) => (
+              <li key={link.name}>
+                <Link
+                  to={link.path}
+                  className="text-[13px] font-semibold text-brand hover:opacity-70"
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Right side */}
+        <div className="flex items-center gap-3">
+
+          {/* Currency */}
+          <div className="flex rounded-full bg-lavender-btn p-0.5 text-[11px] font-bold">
+            {["USD", "EGP"].map((c) => (
+              <button
+                key={c}
+                onClick={() => setCurrency(c)}
+                className={`rounded-full px-2.5 py-1 transition ${
+                  currency === c
+                    ? "bg-brand text-white"
+                    : "text-brand"
+                }`}
               >
-                {link.name}
-              </Link>
+                {c}
+              </button>
             ))}
           </div>
 
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-3">
-
-            <button className="p-2 rounded-lg hover:bg-gray-100">
-              <FiSearch size={20} />
-            </button>
-
-            <button className="p-2 rounded-lg hover:bg-gray-100">
-              <FiSliders size={20} />
-            </button>
-
-            <Link
-              to="/login"
-              className="p-2 rounded-lg hover:bg-gray-100"
-            >
-              <FiUser size={20} />
-            </Link>
-
-            <Link
-              to="/login"
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-            >
-              Login
-            </Link>
-
-            <Link
-              to="/register"
-              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
-            >
-              Sign Up
-            </Link>
-
-          </div>
-
-          {/* Mobile Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2"
+          {/* Sign In */}
+          <Link
+            to="/login"
+            className="rounded-lg bg-brand px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-light"
           >
-            {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            Sign In
+          </Link>
+
+          {/* User */}
+          <button className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-btn text-brand">
+            <User size={16} />
           </button>
 
         </div>
 
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
-
-            <div className="flex flex-col gap-4">
-
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  onClick={() => setIsOpen(false)}
-                  className="text-gray-700 hover:text-black"
-                >
-                  {link.name}
-                </Link>
-              ))}
-
-              <div className="flex gap-3 pt-2">
-
-                <button className="flex items-center gap-2 px-3 py-2 border rounded-lg">
-                  <FiSearch size={18} />
-                  Search
-                </button>
-
-                <button className="flex items-center gap-2 px-3 py-2 border rounded-lg">
-                  <FiSliders size={18} />
-                  Filter
-                </button>
-
-              </div>
-
-              <Link
-                to="/login"
-                className="text-center border border-gray-300 rounded-lg py-2"
-              >
-                Login
-              </Link>
-
-              <Link
-                to="/register"
-                className="text-center bg-black text-white rounded-lg py-2"
-              >
-                Sign Up
-              </Link>
-
-            </div>
-
-          </div>
-        )}
-
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 }
