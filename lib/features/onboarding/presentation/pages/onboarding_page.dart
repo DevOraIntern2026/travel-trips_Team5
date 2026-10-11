@@ -1,50 +1,22 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../widgets/onboarding_stage.dart';
+import '../config/onboarding_scenes.dart';
+import '../widgets/onboarding_controls.dart';
+import '../widgets/onboarding_scene_art.dart';
+import '../widgets/zoom_scene_transition.dart';
 
-class _Slide {
-  const _Slide({
-    required this.eyebrow,
-    required this.title,
-    required this.body,
-  });
-
-  final String eyebrow;
-  final String title;
-  final String body;
-}
-
-const _slides = [
-  _Slide(
-    eyebrow: 'DISCOVER',
-    title: 'Find your next\nescape',
-    body:
-        'Browse curated trips from trusted operators and discover departures that fit your style.',
-  ),
-  _Slide(
-    eyebrow: 'PLAN',
-    title: 'Pick the dates\nthat suit you',
-    body:
-        'Compare departure dates, live seat availability and prices before you commit.',
-  ),
-  _Slide(
-    eyebrow: 'GO',
-    title: 'Reach your\nsummit',
-    body:
-        'Book in a few taps and get alerts the moment seats or departures change.',
-  ),
-];
-
-/// Animated onboarding: big illustrated scenes (balloon → sailing boat →
-/// mountain climb) that react to the swipe position with parallax, a morphing
-/// sky gradient and an ambient idle animation.
+/// Three-scene onboarding with a cinematic zoom transition:
+/// Next zooms *into* the current scene and reveals the next one, Back zooms
+/// *out* and returns to the previous one.
+///
+/// Scene art & copy live in `config/onboarding_scenes.dart`, the transition in
+/// `widgets/zoom_scene_transition.dart`; this page only coordinates them.
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key, required this.onFinished});
 
-  /// Called when the user taps "Get started" or "Skip".
+  /// Integration point: called by "Get Started" and "Skip".
   final VoidCallback onFinished;
 
   @override
@@ -52,30 +24,52 @@ class OnboardingPage extends StatefulWidget {
 }
 
 class _OnboardingPageState extends State<OnboardingPage>
-    with SingleTickerProviderStateMixin {
-  late final PageController _controller = PageController();
+    with TickerProviderStateMixin {
+  static const _duration = Duration(milliseconds: 850);
+  static const _reducedMotionDuration = Duration(milliseconds: 300);
+  static const _swipeVelocity = 250.0;
+
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: _duration,
+  );
+
+  /// Looping 0 → 1 clock for the idle motion inside the scenes.
   late final AnimationController _ambient = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 12),
+    duration: const Duration(seconds: 14),
   );
-  final ValueNotifier<double> _page = ValueNotifier<double>(0);
+  late final Animation<double> _progress = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeInOutCubic,
+  );
+
+  int _from = 0;
+  int _to = 0;
+  bool _reduceMotion = false;
+
+  bool get _busy => _controller.isAnimating;
+  bool get _isFirst => _to == 0;
+  bool get _isLast => _to == onboardingScenes.length - 1;
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() {
-      if (_controller.hasClients) {
-        _page.value = _controller.page ?? 0;
+    assert(onboardingScenes.length == 3, 'Onboarding expects exactly 3 scenes');
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        setState(() => _from = _to); // back to the idle (single layer) state
       }
     });
-    _ambient.repeat();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Respect the system "reduce motion" setting.
-    if (MediaQuery.disableAnimationsOf(context)) {
+    _reduceMotion = MediaQuery.disableAnimationsOf(context);
+
+    // Idle scene motion respects the system "reduce motion" setting.
+    if (_reduceMotion) {
       _ambient.stop();
     } else if (!_ambient.isAnimating) {
       _ambient.repeat();
@@ -84,336 +78,214 @@ class _OnboardingPageState extends State<OnboardingPage>
 
   @override
   void dispose() {
-    _ambient.dispose();
     _controller.dispose();
-    _page.dispose();
+    _ambient.dispose();
     super.dispose();
   }
 
-  void _next() {
-    final current = (_controller.page ?? 0).round();
-    if (current >= _slides.length - 1) {
-      widget.onFinished();
-      return;
-    }
-    _controller.nextPage(
-      duration: const Duration(milliseconds: 700),
-      curve: Curves.easeInOutCubic,
-    );
+  // ── Navigation ────────────────────────────────────────────────────────────
+
+  void _go(int target) {
+    // Ignore requests while a transition is running (no overlapping moves).
+    if (_busy || target == _to) return;
+    if (target < 0 || target >= onboardingScenes.length) return;
+
+    HapticFeedback.selectionClick();
+    _controller.duration = _reduceMotion ? _reducedMotionDuration : _duration;
+    setState(() {
+      _from = _to;
+      _to = target;
+    });
+    _controller.forward(from: 0);
   }
+
+  void _next() {
+    if (_busy) return;
+    if (_isLast) {
+      widget.onFinished();
+    } else {
+      _go(_to + 1);
+    }
+  }
+
+  void _back() => _go(_to - 1);
+
+  void _onDragEnd(DragEndDetails details) {
+    final v = details.primaryVelocity ?? 0;
+    if (v < -_swipeVelocity) {
+      _next();
+    } else if (v > _swipeVelocity) {
+      _back();
+    }
+  }
+
+  // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    final height = media.size.height;
-    final width = media.size.width;
-    final sheetTop = height * 0.56;
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          // Big animated illustration
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: height * 0.64,
-            child: OnboardingStage(page: _page, ambient: _ambient),
-          ),
-
-          // White bottom sheet
-          Positioned(
-            top: sheetTop,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: const DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x1A0A2C27),
-                    blurRadius: 30,
-                    offset: Offset(0, -8),
+    return PopScope(
+      // System back steps through the scenes instead of leaving the app.
+      canPop: _isFirst && !_busy,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _back();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.forestDeep,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onHorizontalDragEnd: _onDragEnd,
+              child: ZoomSceneTransition(
+                animation: _progress,
+                fromIndex: _from,
+                toIndex: _to,
+                reduceMotion: _reduceMotion,
+                sceneBuilder: (context, index) => OnboardingSceneArt(
+                  kind: onboardingScenes[index].kind,
+                  ambient: _ambient,
+                ),
+              ),
+            ),
+            const IgnorePointer(child: OnboardingReadabilityScrim()),
+            SafeArea(
+              minimum: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+              child: Column(
+                children: [
+                  _buildTopBar(),
+                  const Spacer(),
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 560),
+                      child: _buildCopy(),
+                    ),
                   ),
+                  const SizedBox(height: 28),
+                  _buildBottomBar(),
                 ],
               ),
             ),
-          ),
-
-          // Swipeable text (full screen so the whole page is swipeable)
-          Positioned.fill(
-            child: PageView.builder(
-              controller: _controller,
-              itemCount: _slides.length,
-              physics: const BouncingScrollPhysics(),
-              onPageChanged: (_) => HapticFeedback.selectionClick(),
-              itemBuilder: (context, index) => _SlideText(
-                index: index,
-                page: _page,
-                slide: _slides[index],
-                topInset: sheetTop + 32,
-                width: width,
-              ),
-            ),
-          ),
-
-          // Top bar: brand + skip
-          Positioned(
-            top: media.padding.top + 12,
-            left: 24,
-            right: 16,
-            child: AnimatedBuilder(
-              animation: _page,
-              builder: (context, _) {
-                final dark = (_page.value - 1).clamp(0.0, 1.0);
-                final color = Color.lerp(AppColors.ink, Colors.white, dark)!;
-                final skipOpacity = (1 - (_page.value - 1)).clamp(0.0, 1.0);
-                return Row(
-                  children: [
-                    Icon(Icons.explore_rounded, color: color, size: 26),
-                    const SizedBox(width: 8),
-                    Text(
-                      'TravelOra',
-                      style: TextStyle(
-                        color: color,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                    const Spacer(),
-                    Opacity(
-                      opacity: skipOpacity,
-                      child: IgnorePointer(
-                        ignoring: skipOpacity < 0.5,
-                        child: TextButton(
-                          onPressed: widget.onFinished,
-                          style: TextButton.styleFrom(
-                            foregroundColor: color,
-                            backgroundColor: color.withValues(alpha: 0.10),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 10,
-                            ),
-                            shape: const StadiumBorder(),
-                          ),
-                          child: const Text(
-                            'Skip',
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-
-          // Bottom controls: indicator + morphing CTA
-          Positioned(
-            left: 24,
-            right: 24,
-            bottom: media.padding.bottom + 20,
-            child: Row(
-              children: [
-                _PageIndicator(page: _page, count: _slides.length),
-                const Spacer(),
-                _NextButton(page: _page, onPressed: _next),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-}
 
-/// Text block of one slide. Each part moves at a slightly different speed
-/// while swiping, which gives a soft staggered parallax.
-class _SlideText extends StatelessWidget {
-  const _SlideText({
-    required this.index,
-    required this.page,
-    required this.slide,
-    required this.topInset,
-    required this.width,
-  });
-
-  final int index;
-  final ValueNotifier<double> page;
-  final _Slide slide;
-  final double topInset;
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: page,
-      builder: (context, _) {
-        final o = page.value - index;
-        final opacity = (1 - o.abs() * 1.6).clamp(0.0, 1.0);
-
-        Widget part(double factor, Widget child) => Transform.translate(
-          offset: Offset(o * width * factor, 0),
-          child: child,
-        );
-
-        return Opacity(
-          opacity: opacity,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(24, topInset, 24, 0),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  part(
-                    0.25,
-                    Text(
-                      slide.eyebrow,
-                      style: const TextStyle(
-                        color: AppColors.terracotta,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 2.2,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  part(
-                    0.35,
-                    Text(
-                      slide.title,
-                      style: const TextStyle(
-                        color: AppColors.ink,
-                        fontSize: 30,
-                        height: 1.15,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  part(
-                    0.5,
-                    Text(
-                      slide.body,
-                      style: const TextStyle(
-                        color: AppColors.muted,
-                        fontSize: 15,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+  Widget _buildTopBar() {
+    return Row(
+      children: [
+        const OnboardingBrand(),
+        const Spacer(),
+        AnimatedOpacity(
+          duration: const Duration(milliseconds: 300),
+          opacity: _isLast ? 0 : 1,
+          child: IgnorePointer(
+            ignoring: _isLast,
+            child: OnboardingSkipButton(
+              key: const Key('onboarding_skip'),
+              onPressed: widget.onFinished,
             ),
           ),
-        );
-      },
+        ),
+      ],
     );
   }
-}
 
-class _PageIndicator extends StatelessWidget {
-  const _PageIndicator({required this.page, required this.count});
-
-  final ValueListenable<double> page;
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
+  /// Headline/description: the outgoing copy drifts away in the direction of
+  /// travel while the incoming copy settles in, following the same progress as
+  /// the background.
+  Widget _buildCopy() {
     return AnimatedBuilder(
-      animation: page,
+      animation: _progress,
       builder: (context, _) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
+        if (_from == _to) {
+          return OnboardingCopy(
+            key: ValueKey<int>(_to),
+            scene: onboardingScenes[_to],
+          );
+        }
+
+        final t = _progress.value;
+        final dir = _to > _from ? 1.0 : -1.0;
+        final out = const Interval(0.0, 0.4, curve: Curves.easeIn).transform(t);
+        final inn = const Interval(0.45, 1.0, curve: Curves.easeOut)
+            .transform(t);
+        final shift = _reduceMotion ? 0.0 : 24.0;
+
+        return Stack(
+          alignment: Alignment.bottomLeft,
           children: [
-            for (var i = 0; i < count; i++)
-              Builder(
-                builder: (context) {
-                  final d = (1 - (page.value - i).abs()).clamp(0.0, 1.0);
-                  return Container(
-                    width: 8 + 24 * d,
-                    height: 8,
-                    margin: const EdgeInsets.only(right: 6),
-                    decoration: BoxDecoration(
-                      color: Color.lerp(AppColors.border, AppColors.forest, d),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  );
-                },
+            Opacity(
+              opacity: 1 - out,
+              child: Transform.translate(
+                offset: Offset(0, -dir * shift * out),
+                child: OnboardingCopy(
+                  key: ValueKey<int>(_from),
+                  scene: onboardingScenes[_from],
+                ),
               ),
+            ),
+            Opacity(
+              opacity: inn,
+              child: Transform.translate(
+                offset: Offset(0, dir * shift * (1 - inn)),
+                child: OnboardingCopy(
+                  key: ValueKey<int>(_to),
+                  scene: onboardingScenes[_to],
+                ),
+              ),
+            ),
           ],
         );
       },
     );
   }
-}
 
-/// Round arrow button that smoothly morphs into a "Get started" pill on the
-/// last slide.
-class _NextButton extends StatelessWidget {
-  const _NextButton({required this.page, required this.onPressed});
-
-  final ValueListenable<double> page;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: page,
-      builder: (context, _) {
-        final last = (page.value - (_slides.length - 2)).clamp(0.0, 1.0);
-        final showLabel = last > 0.05;
-        return SizedBox(
-          height: 58,
-          width: 58 + 118 * last,
-          child: Material(
-            color: AppColors.forest,
-            borderRadius: BorderRadius.circular(29),
-            elevation: 6,
-            shadowColor: AppColors.forest.withValues(alpha: 0.4),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(29),
-              onTap: onPressed,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (showLabel)
-                    Flexible(
-                      child: Opacity(
-                        opacity: last,
-                        child: const Text(
-                          'Get started',
-                          maxLines: 1,
-                          softWrap: false,
-                          overflow: TextOverflow.clip,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (showLabel) SizedBox(width: 8 * last),
-                  const Icon(
-                    Icons.arrow_forward_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ],
-              ),
-            ),
+  Widget _buildBottomBar() {
+    return Row(
+      children: [
+        AnimatedBuilder(
+          animation: _progress,
+          builder: (context, _) {
+            final position = _from + (_to - _from) * _progress.value;
+            return OnboardingPageIndicator(
+              position: position,
+              count: onboardingScenes.length,
+            );
+          },
+        ),
+        const Spacer(),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) => SizeTransition(
+            axis: Axis.horizontal,
+            axisAlignment: 1,
+            sizeFactor: animation,
+            child: FadeTransition(opacity: animation, child: child),
           ),
-        );
-      },
+          child: _isFirst
+              ? const SizedBox.shrink(key: ValueKey('no-back'))
+              : Padding(
+                  key: const ValueKey('back'),
+                  padding: const EdgeInsets.only(right: 12),
+                  child: OnboardingGlassButton(
+                    key: const Key('onboarding_back'),
+                    icon: Icons.arrow_back_rounded,
+                    tooltip: 'Back',
+                    onPressed: _back,
+                  ),
+                ),
+        ),
+        OnboardingPrimaryButton(
+          key: const Key('onboarding_next'),
+          label: _isLast ? 'Get Started' : 'Next',
+          onPressed: _next,
+        ),
+      ],
     );
   }
 }
