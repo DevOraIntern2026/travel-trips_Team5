@@ -18,7 +18,7 @@ class TripDatesCubit extends Cubit<TripDatesState> {
 
     if (result is Success<List<TripDateModel>>) {
       emit(TripDatesSuccess(result.data));
-    } else if (result is Error<List<TripDateModel>>) {
+    } else if (result is Failure<List<TripDateModel>>) {
       emit(TripDatesError(result.message));
     }
   }

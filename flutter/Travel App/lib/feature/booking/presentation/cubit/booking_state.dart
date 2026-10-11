@@ -15,5 +15,11 @@ class BookingSuccess extends BookingState {
 class BookingError extends BookingState {
   final String message;
 
-  BookingError(this.message);
+  /// null => request never reached the server (offline / timeout).
+  final int? statusCode;
+
+  BookingError(this.message, {this.statusCode});
+
+  bool get isNetworkError => statusCode == null;
+  bool get isSeatCollision => statusCode == 409;
 }

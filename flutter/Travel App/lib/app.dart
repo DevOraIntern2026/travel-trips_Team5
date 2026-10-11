@@ -1,8 +1,8 @@
+import 'package:devora_trips/feature/splash/presentation/ui/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'feature/booking/presentation/theme/booking_colors.dart';
-import 'feature/booking/presentation/ui/booking_history_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.plusJakartaSansTextTheme(),
       ),
-      home: const BookingHistoryScreen(),
+      home: const SplashScreen(),
     );
   }
 }

@@ -5,9 +5,7 @@ import '../theme/booking_spacing.dart';
 
 class BookingErrorBanner extends StatelessWidget {
   final String message;
-
   const BookingErrorBanner({super.key, required this.message});
-
   @override
   Widget build(BuildContext context) {
     return Container(

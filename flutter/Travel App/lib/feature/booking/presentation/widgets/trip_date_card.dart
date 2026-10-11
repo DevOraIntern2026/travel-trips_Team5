@@ -54,7 +54,7 @@ class TripDateCard extends StatelessWidget {
                     ),
                     const SizedBox(height: BookingSpacing.xs),
                     Text(
-                      '${formatPrice(date.price)} / person'
+                      '${formatPricePlain(date.price)} / person'
                       '  •  Capacity ${date.capacity}',
                       style: BookingTextStyles.caption,
                     ),
@@ -92,9 +92,7 @@ class _SelectedIndicator extends StatelessWidget {
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isSelected
-            ? BookingColors.primary
-            : BookingColors.surfaceSoft,
+        color: isSelected ? BookingColors.primary : BookingColors.surfaceSoft,
       ),
       child: Icon(
         Icons.check,

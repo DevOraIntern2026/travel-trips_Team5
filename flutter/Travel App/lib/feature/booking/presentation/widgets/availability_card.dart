@@ -35,7 +35,7 @@ class AvailabilityCard extends StatelessWidget {
               ),
             ),
             BookingChip(
-              label: _hasSeats ? 'Guaranteed Run' : 'Sold Out',
+              label: _hasSeats ? 'Seats available' : 'Sold Out',
               background: _hasSeats
                   ? BookingColors.successSurface
                   : BookingColors.errorSurface,

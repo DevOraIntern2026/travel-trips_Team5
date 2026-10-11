@@ -71,7 +71,10 @@ class BookingSectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: BookingSpacing.xs, bottom: BookingSpacing.md),
+      padding: const EdgeInsets.only(
+        top: BookingSpacing.xs,
+        bottom: BookingSpacing.md,
+      ),
       child: Text(text, style: BookingTextStyles.sectionTitle),
     );
   }

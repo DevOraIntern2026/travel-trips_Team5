@@ -20,10 +20,15 @@ class BookingCubit extends Cubit<BookingState> {
       request,
     );
 
+    if (isClosed) return;
+
     if (result is Success<BookingModel>) {
       emit(BookingSuccess(result.data));
-    } else if (result is Error<BookingModel>) {
-      emit(BookingError(result.message));
+    } else if (result is Failure<BookingModel>) {
+      emit(BookingError(result.message, statusCode: result.statusCode));
     }
   }
+
+  /// Back to the review form (e.g. after an error banner was dismissed).
+  void reset() => emit(BookingInitial());
 }

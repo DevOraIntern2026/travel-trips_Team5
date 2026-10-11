@@ -1,173 +1,98 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_widgets.dart';
+import '../../../home/data/models/trip_model.dart';
+import '../../../main/presentation/ui/main_shell.dart';
 import '../../data/models/booking_model.dart';
-import '../theme/booking_colors.dart';
-import '../theme/booking_spacing.dart';
-import '../theme/booking_text_styles.dart';
-import '../utils/booking_formatters.dart';
-import 'booking_info_card.dart';
-import 'booking_primary_button.dart';
-import 'booking_status_badge.dart';
-import 'no_payment_today_card.dart';
+import '../../data/models/trip_date_model.dart';
+import 'reservation/submitted_hero.dart';
+import 'reservation/submitted_next_steps.dart';
+import 'reservation/submitted_questions.dart';
+import 'reservation/submitted_reference_card.dart';
+import 'reservation/submitted_trip_card.dart';
 
 class ReservationSubmittedView extends StatelessWidget {
   final BookingModel booking;
+  final TripDateModel? date;
+  final TripModel? trip;
 
-  const ReservationSubmittedView({super.key, required this.booking});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(BookingSpacing.lg),
-      child: Column(
-        children: [
-          const SizedBox(height: BookingSpacing.md),
-          const _SubmittedIcon(),
-          const SizedBox(height: BookingSpacing.lg),
-          const Text(
-            'Reservation Request\nDispatched!',
-            textAlign: TextAlign.center,
-            style: BookingTextStyles.screenTitle,
-          ),
-          const SizedBox(height: BookingSpacing.sm),
-          Text(
-            'We’ve transmitted your reservation for trip '
-            '#${booking.tripId} directly to the operator.',
-            textAlign: TextAlign.center,
-            style: BookingTextStyles.muted,
-          ),
-          const SizedBox(height: BookingSpacing.xl),
-          const NoPaymentTodayCard(),
-          const SizedBox(height: BookingSpacing.xl),
-          _ReferenceCard(booking: booking),
-          const SizedBox(height: BookingSpacing.xl),
-          _BookingSummaryCard(booking: booking),
-          const SizedBox(height: BookingSpacing.xxl),
-          BookingPrimaryButton(
-            text: 'View in My Bookings',
-            icon: Icons.arrow_forward,
-            onPressed: () =>
-                Navigator.of(context).popUntil((route) => route.isFirst),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SubmittedIcon extends StatelessWidget {
-  const _SubmittedIcon();
+  const ReservationSubmittedView({
+    super.key,
+    required this.booking,
+    this.date,
+    this.trip,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 92,
-      height: 92,
-      decoration: const BoxDecoration(
-        color: BookingColors.successSurface,
-        shape: BoxShape.circle,
-      ),
-      child: Container(
-        margin: const EdgeInsets.all(14),
-        decoration: const BoxDecoration(
-          color: BookingColors.success,
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(Icons.check, color: BookingColors.surface, size: 36),
-      ),
-    );
-  }
-}
-
-class _ReferenceCard extends StatelessWidget {
-  final BookingModel booking;
-
-  const _ReferenceCard({required this.booking});
-
-  bool get _isConfirmed => booking.status == 'Confirmed';
-
-  @override
-  Widget build(BuildContext context) {
-    return BookingInfoCard(
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       children: [
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('REFERENCE CODE', style: BookingTextStyles.microLabel),
-            Text('SUBMITTED', style: BookingTextStyles.microLabel),
-          ],
-        ),
-        const SizedBox(height: BookingSpacing.sm),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('#${booking.id}', style: BookingTextStyles.cardMetric),
-            Text(
-              formatBookingDateTime(booking.createdAt),
-              style: BookingTextStyles.muted,
+        SubmittedHero(booking: booking, trip: trip),
+        const SizedBox(height: 14),
+        SubmittedReferenceCard(booking: booking),
+        const SizedBox(height: 14),
+        SubmittedTripCard(booking: booking, date: date, trip: trip),
+        const SizedBox(height: 14),
+        SubmittedNextSteps(booking: booking, trip: trip),
+        const SizedBox(height: 14),
+        SubmittedQuestions(),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 56,
+          child: FilledButton(
+            onPressed: () => MainShell.open(context, tab: 1),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.coral,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
-          ],
-        ),
-        const SizedBox(height: BookingSpacing.lg),
-        Container(
-          width: double.infinity,
-          padding: BookingSpacing.cardPadding,
-          decoration: BoxDecoration(
-            color: _isConfirmed
-                ? BookingColors.successSurface
-                : BookingColors.surfaceSoft,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                _isConfirmed ? Icons.check_circle : Icons.hourglass_top,
-                color: _isConfirmed
-                    ? BookingColors.success
-                    : BookingColors.accent,
-              ),
-              const SizedBox(width: BookingSpacing.md),
-              Expanded(
-                child: Text(
-                  _isConfirmed
-                      ? 'Confirmed departure'
-                      : 'Awaiting operator confirmation',
-                  style: BookingTextStyles.captionEmphasis.copyWith(
-                    color: _isConfirmed
-                        ? BookingColors.success
-                        : BookingColors.error,
-                  ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'View in My Bookings',
+                  style: AppText.label(16, Colors.white),
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_forward_rounded, size: 19),
+              ],
+            ),
           ),
         ),
-      ],
-    );
-  }
-}
-
-class _BookingSummaryCard extends StatelessWidget {
-  final BookingModel booking;
-
-  const _BookingSummaryCard({required this.booking});
-
-  @override
-  Widget build(BuildContext context) {
-    return BookingInfoCard(
-      children: [
-        BookingInfoRow(label: 'Trip', value: '#${booking.tripId}'),
-        const SizedBox(height: BookingSpacing.md),
-        BookingInfoRow(label: 'Trip date', value: '#${booking.tripDateId}'),
-        const SizedBox(height: BookingSpacing.md),
-        BookingInfoRow(label: 'Price', value: formatPrice(booking.price)),
-        const SizedBox(height: BookingSpacing.md),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Status', style: BookingTextStyles.muted),
-            BookingStatusBadge(status: booking.status),
-          ],
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 52,
+          child: FilledButton.icon(
+            onPressed: () {
+              // TODO: add to calendar
+            },
+            icon: const Icon(Icons.event_available_outlined, size: 19),
+            label: Text(
+              'Add to Apple / Google Calendar',
+              style: AppText.label(14.5),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: AppColors.ink,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ),
+        ),
+        TextButton.icon(
+          onPressed: () {
+            // TODO: download PDF summary
+          },
+          icon: const Icon(Icons.download_outlined, size: 16),
+          label: Text(
+            'Download Reservation Summary (PDF)',
+            style: AppText.label(12, AppColors.primary, FontWeight.w600),
+          ),
         ),
       ],
     );

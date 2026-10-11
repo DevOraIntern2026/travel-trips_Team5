@@ -16,9 +16,11 @@ class AvailabilityCubit extends Cubit<AvailabilityState> {
     final ApiResult<AvailabilityModel> result = await _bookingRepo
         .getAvailability(tripId, dateId);
 
+    if (isClosed) return;
+
     if (result is Success<AvailabilityModel>) {
       emit(AvailabilitySuccess(result.data));
-    } else if (result is Error<AvailabilityModel>) {
+    } else if (result is Failure<AvailabilityModel>) {
       emit(AvailabilityError(result.message));
     }
   }

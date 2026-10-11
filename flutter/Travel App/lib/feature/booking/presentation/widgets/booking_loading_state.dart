@@ -6,10 +6,7 @@ import '../theme/booking_spacing.dart';
 class BookingLoadingState extends StatelessWidget {
   final String message;
 
-  const BookingLoadingState({
-    super.key,
-    this.message = 'Loading…',
-  });
+  const BookingLoadingState({super.key, this.message = 'Loading…'});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +18,10 @@ class BookingLoadingState extends StatelessWidget {
           children: [
             const CircularProgressIndicator(color: BookingColors.primary),
             const SizedBox(height: BookingSpacing.md),
-            Text(message, style: const TextStyle(color: BookingColors.textMuted)),
+            Text(
+              message,
+              style: const TextStyle(color: BookingColors.textMuted),
+            ),
           ],
         ),
       ),

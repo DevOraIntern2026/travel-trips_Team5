@@ -44,7 +44,13 @@ class BookingPrimaryButton extends StatelessWidget {
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(text, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                  Text(
+                    text,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
+                    ),
+                  ),
                   if (icon != null) ...[
                     const SizedBox(width: BookingSpacing.sm),
                     Icon(icon, size: 20),

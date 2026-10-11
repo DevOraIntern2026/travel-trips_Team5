@@ -30,7 +30,7 @@ class BookingRepo {
     } catch (error) {
       final apiError = ApiErrorHandler.handle(error);
 
-      return Error(apiError.message, statusCode: apiError.statusCode);
+      return Failure(apiError.message, statusCode: apiError.statusCode);
     }
   }
 
@@ -53,7 +53,7 @@ class BookingRepo {
     } catch (error) {
       final apiError = ApiErrorHandler.handle(error);
 
-      return Error(apiError.message, statusCode: apiError.statusCode);
+      return Failure(apiError.message, statusCode: apiError.statusCode);
     }
   }
 
@@ -72,7 +72,7 @@ class BookingRepo {
       final bookingsData = responseData['data'];
 
       if (bookingsData is! List) {
-        return const Error('Invalid bookings response.');
+        return const Failure<List<BookingModel>>('Invalid bookings response.');
       }
 
       final bookings = bookingsData
@@ -83,7 +83,7 @@ class BookingRepo {
     } catch (error) {
       final apiError = ApiErrorHandler.handle(error);
 
-      return Error(apiError.message, statusCode: apiError.statusCode);
+      return Failure(apiError.message, statusCode: apiError.statusCode);
     }
   }
 
@@ -101,7 +101,7 @@ class BookingRepo {
     } catch (error) {
       final apiError = ApiErrorHandler.handle(error);
 
-      return Error(apiError.message, statusCode: apiError.statusCode);
+      return Failure(apiError.message, statusCode: apiError.statusCode);
     }
   }
 
@@ -117,7 +117,7 @@ class BookingRepo {
     } catch (error) {
       final apiError = ApiErrorHandler.handle(error);
 
-      return Error(apiError.message, statusCode: apiError.statusCode);
+      return Failure(apiError.message, statusCode: apiError.statusCode);
     }
   }
 
@@ -137,7 +137,9 @@ class BookingRepo {
       final datesData = responseData['data'];
 
       if (datesData is! List) {
-        return const Error('Invalid trip dates response.');
+        return const Failure<List<TripDateModel>>(
+          'Invalid trip dates response.',
+        );
       }
 
       final tripDates = datesData
@@ -148,7 +150,7 @@ class BookingRepo {
     } catch (error) {
       final apiError = ApiErrorHandler.handle(error);
 
-      return Error(apiError.message, statusCode: apiError.statusCode);
+      return Failure(apiError.message, statusCode: apiError.statusCode);
     }
   }
 }
