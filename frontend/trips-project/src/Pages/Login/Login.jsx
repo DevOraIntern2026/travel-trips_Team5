@@ -1,5 +1,5 @@
 import "./Login.css"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import container from "../../assets/images/loginImages/Container.png"
 import googleLogo from "../../assets/images/loginImages/google.png"
 import appleLogo from "../../assets/images/loginImages/apple.png"
@@ -12,17 +12,60 @@ import atIcon from "../../assets/images/loginImages/at.png"
 import verification from "../../assets/images/loginImages/verification.png"
 import security from "../../assets/images/loginImages/security.png"
 import stalite from "../../assets/images/loginImages/stalite.png"
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../Context/AppContext";
 
 export default function Login() {
+    const { isLoggedIn, setIsLoggedIn, user, setUser } = useAppContext(); // Access the context value
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false)
     const [userData, setUserData] = useState({
         email: "",
         password: "",
     })
-    function handleSubmit(e) {
+    const [serverError, setServerError] = useState("")
+    useEffect(()=>{
+        if(isLoggedIn){
+            navigate("/dashboard",{replace:true})
+        }
+    },[isLoggedIn,navigate])
+    async function handleSubmit(e) {
+
         e.preventDefault();
-        console.log(userData)
-        console.log("loggedIn successfully")
+        try{
+            
+            const response = await fetch(
+                "http://localhost:3000/api/v1/auth/login",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(userData),
+                }
+            );
+            const data = await response.json();
+            console.log("Login response:", data);
+            if(!response.ok){
+                setServerError(data.message || "Something went wrong. Please try again later.");
+                return;
+            }
+            
+            // Handle successful login, e.g., store token, redirect, etc.
+            localStorage.setItem("accessToken", data.accessToken);
+            localStorage.setItem("refreshToken", data.refreshToken);
+            if(localStorage.getItem("accessToken")){
+
+                setIsLoggedIn(true); // Update the context state to indicate the user is logged in
+            }
+            setUser(data.user); // Update the user information in the context
+            navigate("/dashboard");
+        }catch (error) {
+            setServerError("Something went wrong. Please try again later.");
+        }
+            
+        
+
     }
     function handleChange(e) {
         const { name, type, value, checked } = e.target
@@ -55,7 +98,7 @@ export default function Login() {
                         <div className="relayTitle">
 
                             <div className="relayIcon">
-                                <img src={stalite} alt="satalite"/>
+                                <img src={stalite} alt="satalite" />
                             </div>
 
                             <div>
@@ -177,12 +220,13 @@ export default function Login() {
                                     onChange={handleChange}
                                     name="remember"
                                     value={userData.password}
-                                    required />
+                                />
                                 <label htmlFor="remember">Remember me</label>
                             </div>
                             <a href="#">Forgot password?</a>
                         </div>
                     </div>
+                        <p className="serverError">{serverError}</p>
 
                     <div className='btnsContainer'>
                         <button className='loginBtn'>Log in</button>

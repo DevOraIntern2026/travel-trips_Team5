@@ -1,7 +1,8 @@
 
 import { useState } from "react";
 import { User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAppContext } from "../../Context/AppContext";
 
 const links = [
   { name: "ExploreExpeditions", path: "/explore-expeditions" },
@@ -10,11 +11,44 @@ const links = [
   { name: "About", path: "/about" },
   { name: "MyBooking", path: "/my-booking" },
   { name: "ExpeditionDiscovery", path: "/home/expedition" },
+  { name: "Dashboard", path: "/dashboard" },
 ];
 
 export default function NavLinkbar() {
   const [currency, setCurrency] = useState("USD");
+  const {isLoggedIn, setIsLoggedIn} = useAppContext(); // Access the context value
+  const {user, setUser} = useAppContext(); // Access the context value
+  const navigate = useNavigate();
+ async function handleLogout() {
 
+   try {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if(!refreshToken){
+    console.error("No refresh token found in localStorage.");
+    return;
+  }
+  const response = await fetch("http://localhost:3000/api/v1/auth/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({refreshToken}),
+    });
+    const data = await response.json();
+    if(!response.ok){
+      console.error("Logout Failed: ",  data)
+      return;
+    }
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
+    setUser(null);
+    setIsLoggedIn(false);
+    navigate("/login")
+    console.log("Logout successful:", data);
+  }catch(error){
+    console.error("Logout failed:", error);
+  }
+}
   return (
     <header className="bg-white/70 backdrop-blur sticky top-0 z-50">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
@@ -66,13 +100,24 @@ export default function NavLinkbar() {
           </div>
 
           {/* Sign In */}
+          {isLoggedIn?(
           <Link
+          className="rounded-lg bg-brand px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-light"
+          onClick={handleLogout}
+          >
+            Sign Out
+          </Link>
+          ):(
+            
+            <Link
             to="/login"
             className="rounded-lg bg-brand px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-light"
           >
             Sign In
           </Link>
-
+          )}
+          
+          
           {/* User */}
           <button className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-btn text-brand">
             <User size={16} />
