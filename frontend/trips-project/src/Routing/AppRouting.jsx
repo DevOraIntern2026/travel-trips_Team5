@@ -10,6 +10,13 @@ import ExpeditionDiscovery from "../Pages/expedition/ExpeditionDiscovery";
 import ExploreExpeditions from "../Pages/expeditionExplore/ExpeditionExplore";
 import HowItWorks from "../Pages/HowItWorks/HowItWorks";
 import MyBooking from "../Pages/MyBooking";
+import Dashboard from "../Pages/Dashboard/Dashboard";
+import EditTrip from "../Pages/Dashboard/EditTrips";
+import DatesAvailability from "../Pages/Dashboard/DateAvailability";
+import GuestRoute from "../GuestRoute/GuestRoute";
+import AdminDashboard from "../Pages/AdminDashboard/AdminDashboard";
+import AdminUsers from "../Pages/AdminDashboard/AdminUsers";
+import AdminTrips from "../Pages/AdminDashboard/AdminTrips";
 
 export const router = createBrowserRouter([
  {
@@ -23,10 +30,31 @@ element: <Home />,
 path: "/home/expedition",
 element: <ExpeditionDiscovery/>,
 },
-// {
-// path: "/home/expeditionExplore",
-// element: <ExpeditionExplore/>,
-// },
+{
+path: "/dashboard",
+element: <Dashboard/>,
+},
+{
+path: "/admin",
+element: <AdminDashboard/>,
+},
+{
+path: "/admin/users",
+element: <AdminUsers/>,
+},
+{
+path: "/admin/trips",
+element: <AdminTrips/>,
+},
+{
+path: "/trips/edit",
+element: <EditTrip/>,
+},
+{
+path: "/trips/dates",
+element: <DatesAvailability/>,
+},
+
 {
 path: "/about",
 element: <About />,
@@ -44,8 +72,12 @@ path: "/my-booking",
 element: <MyBooking/>,
 },
 {
-path:"/login",
-element: <Login/>,
+element: <GuestRoute/>,
+children:[{
+  path:"/login",
+  element:<Login/>
+}
+]
 },
 {
 path:"/register",

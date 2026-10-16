@@ -96,6 +96,7 @@ export default function Register() {
     const [showConfirm, setShowConfirm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [serverMsg, setServerMsg] = useState("");
+    const [successMsg, setSuccessMsg] = useState("");
 
     const strength = userData.password ? getStrength(userData.password) : 0;
     
@@ -139,6 +140,7 @@ export default function Register() {
                     passwordConfirm: "",
                     terms: false });
                 // onSuccess?.(role, data); // e.g. navigate to Step 2
+                setSuccessMsg("Registration successful! You can now log in.");
             } else {
                 setServerMsg(data?.message || "Registration failed. Please try again.");
             }
@@ -316,7 +318,8 @@ export default function Register() {
                     {error.terms && <p className="fieldError">{error.terms}</p>}
 
                     {serverMsg && <p className="serverMsg">{serverMsg}</p>}
-
+                    
+                    {successMsg && <p className="successMsg">{successMsg}</p>}
                     <div className="btnsContainer">
                         <button type="submit" className="registerBtn" disabled={loading}>
                             {loading ? "Creating account..." : <>Create Account <ArrowRight size={16} /></>}
