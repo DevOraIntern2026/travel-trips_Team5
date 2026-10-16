@@ -27,13 +27,13 @@ const cards = [
 export default function WhyChoose() {
   return (
     <section className="bg-lavender-dark/60 py-12">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-5xl px-6">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-rust">
               Uncompromising Backcountry Infrastructure
             </p>
-            <h2 className="mt-1 text-3xl font-extrabold text-brand">Why Expeditions Choose TravelOra</h2>
+            <h2 className="mt-1 text-2xl font-extrabold text-brand">Why Expeditions Choose TravelOra</h2>
           </div>
           <p className="max-w-sm text-[12px] leading-relaxed text-slate-500">
             Unlike generic booking portals, our platform directly integrates with local tribal

@@ -37,7 +37,7 @@ const trips = [
 export default function Departures() {
   return (
     <section className="bg-lavender py-12">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-4xl px-6">
         <div className="flex items-end justify-between">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-rust">Immediate Booking Access</p>
