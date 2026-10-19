@@ -17,52 +17,62 @@ import GuestRoute from "../GuestRoute/GuestRoute";
 import AdminDashboard from "../Pages/AdminDashboard/AdminDashboard";
 import AdminUsers from "../Pages/AdminDashboard/AdminUsers";
 import AdminTrips from "../Pages/AdminDashboard/AdminTrips";
+import Bookings from "../Pages/Booking/Bookings";
+import Profile from "../Pages/Profile/Profile";
+import Destination from "../Pages/Destination/Destination";
 
-const routePaths = ["/", "/home/expedition", "/dashboard", "/admin", "/admin/users", "/admin/trips", "/trips/edit", "/trips/dates", "/about", "/explore-expeditions", "/how-it-works", "/my-booking", "/login", "/register", "/*"];
-// #region agent log
-fetch('http://127.0.0.1:7940/ingest/438fa240-d876-4130-8fe5-cb8f36bf1e89',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'377b2a'},body:JSON.stringify({sessionId:'377b2a',runId:'pre-fix',hypothesisId:'C',location:'AppRouting.jsx:routes',message:'Registered router paths',data:{routePaths,hasBookings:routePaths.includes('/bookings'),hasProfile:routePaths.includes('/profile')},timestamp:Date.now()})}).catch(()=>{});
-// #endregion
 export const router = createBrowserRouter([
- {
-  element:<MainLayout/>,
-children :[
-{
-path: "/",
-element: <Home />,
-},
-{
-path: "/home/expedition",
-element: <ExpeditionDiscovery/>,
-},
-{
-path: "/dashboard",
-element: <Dashboard/>,
-},
-{
-path: "/admin",
-element: <AdminDashboard/>,
-},
-{
-path: "/admin/users",
-element: <AdminUsers/>,
-},
-{
-path: "/admin/trips",
-element: <AdminTrips/>,
-},
-{
-path: "/trips/edit",
-element: <EditTrip/>,
-},
-{
-path: "/trips/dates",
-element: <DatesAvailability/>,
-},
-
-{
-path: "/about",
-element: <About />,
-},
+  {
+    path: "/bookings",
+    element: <Bookings />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
+    path: "/trips/edit",
+    element: <EditTrip />,
+  },
+  {
+    path: "/trips/dates",
+    element: <DatesAvailability />,
+  },
+  {
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/home/expedition",
+        element: <ExpeditionDiscovery />,
+      },
+      {
+        path: "/destinations",
+        element: <Destination />,
+      },
+      {
+        path: "/admin",
+        element: <AdminDashboard />,
+      },
+      {
+        path: "/admin/users",
+        element: <AdminUsers />,
+      },
+      {
+        path: "/admin/trips",
+        element: <AdminTrips />,
+      },
+      {
+        path: "/about",
+        element: <About />,
+      },
 {
 path: "/explore-expeditions",
 element: <ExploreExpeditions/>,

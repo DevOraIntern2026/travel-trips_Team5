@@ -26,32 +26,41 @@ const cards = [
 
 export default function WhyChoose() {
   return (
-    <section className="bg-lavender-dark/60 py-12">
-      <div className="mx-auto max-w-5xl px-6">
+    <section className="bg-lavender-dark/60 py-16">
+      <div className="mx-auto max-w-6xl px-6">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-rust">
+          <div className="flex flex-col">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-rust">
               Uncompromising Backcountry Infrastructure
             </p>
-            <h2 className="mt-1 text-2xl font-extrabold text-brand">Why Expeditions Choose TravelOra</h2>
+            <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-brand">
+              Why Expeditions Choose TravelOra
+            </h2>
           </div>
-          <p className="max-w-sm text-[12px] leading-relaxed text-slate-500">
+          <p className="max-w-md text-xs sm:text-sm leading-relaxed text-slate-500">
             Unlike generic booking portals, our platform directly integrates with local tribal
             leadership and government environmental bodies for total security.
           </p>
         </div>
 
-        <div className="mt-6 grid gap-5 md:grid-cols-3">
+        <div className="mt-8 flex flex-col md:flex-row gap-5 items-stretch">
           {cards.map(({ icon: Icon, iconBg, title, text, tag }) => (
-            <div key={title} className="rounded-xl bg-white p-6 shadow-sm">
-              <span className={`mb-4 flex h-9 w-9 items-center justify-center rounded-lg ${iconBg}`}>
-                <Icon size={18} />
-              </span>
-              <h3 className="text-[16px] font-semibold leading-snug text-brand">{title}</h3>
-              <p className="mt-2 text-[13px] leading-relaxed text-slate-500">{text}</p>
-              <p className={`mt-4 flex items-center gap-1.5 text-[11px] font-semibold ${tag.color}`}>
-                <tag.icon size={12} /> {tag.label}
-              </p>
+            <div
+              key={title}
+              className="flex-1 flex flex-col justify-between rounded-xl bg-white p-6 shadow-xs border border-slate-100 hover:shadow-md transition-shadow"
+            >
+              <div className="flex flex-col items-start">
+                <span className={`mb-4 flex h-10 w-10 items-center justify-center rounded-lg ${iconBg}`}>
+                  <Icon size={18} />
+                </span>
+                <h3 className="text-base font-bold leading-snug text-brand">{title}</h3>
+                <p className="mt-2 text-xs sm:text-[13px] leading-relaxed text-slate-500">{text}</p>
+              </div>
+              <div className="pt-4 mt-4 border-t border-slate-50">
+                <p className={`flex items-center gap-1.5 text-[11px] font-semibold ${tag.color}`}>
+                  <tag.icon size={13} /> {tag.label}
+                </p>
+              </div>
             </div>
           ))}
         </div>

@@ -39,7 +39,7 @@
         ),
 
         /* Main image */
-        url("../assets/images/expeditionImages/Ambient Atmospheric Backdrop.png");
+        url("../../assets/images/expeditionImages/Ambient Atmospheric Backdrop.png");
 }
 .liveGlobalContainer .dot{
   width: 8px;
