@@ -1,0 +1,576 @@
+{
+  "destinations": [
+    {
+      "id": 1,
+      "name": "Dolomites & Northern Italy",
+      "description": "Alpine trails, limestone peaks and mountain refuges.",
+      "city": "Cortina d'Ampezzo",
+      "country": "Italy",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Patagonia & Los Glaciares",
+      "description": "Glacier views and rugged trails around Fitz Roy.",
+      "city": "El Chalten",
+      "country": "Argentina",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "Kyoto & Kumano Kodo",
+      "description": "Forest paths, shrines and historic pilgrim routes.",
+      "city": "Kyoto",
+      "country": "Japan",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "name": "Amalfi Coast",
+      "description": "Coastal paths above the Mediterranean.",
+      "city": "Amalfi",
+      "country": "Italy",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "name": "Icelandic Highlands & Geysers",
+      "description": "Volcanic valleys, geothermal springs and remote highland trails.",
+      "city": "Landmannalaugar",
+      "country": "Iceland",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "name": "Peru & the Sacred Valley",
+      "description": "Andean mountain paths and Inca heritage around Cusco.",
+      "city": "Cusco",
+      "country": "Peru",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "name": "Annapurna Circuit",
+      "description": "High mountain passes and Himalayan villages in Nepal.",
+      "city": "Pokhara",
+      "country": "Nepal",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "name": "Atlas Mountains & Berber Villages",
+      "description": "Mountain paths, valleys and traditional villages in Morocco.",
+      "city": "Marrakech",
+      "country": "Morocco",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "name": "New Zealand Southern Alps",
+      "description": "Alpine lakes, rainforests and the Milford Track.",
+      "city": "Queenstown",
+      "country": "New Zealand",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "name": "Swiss Alps & Matterhorn",
+      "description": "Glacier viewpoints and classic trails around Zermatt.",
+      "city": "Zermatt",
+      "country": "Switzerland",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "operators": [
+    {
+      "id": 11,
+      "name": "Alpine Guides Co.",
+      "description": "Small-group guided trekking experiences.",
+      "isActive": true
+    },
+    {
+      "id": 12,
+      "name": "Trailmakers Travel",
+      "description": "Curated walking and cultural journeys.",
+      "isActive": true
+    }
+  ],
+  "trips": [
+    {
+      "id": 101,
+      "destinationId": 1,
+      "operatorId": 11,
+      "name": "Dolomites Alta Via 1 High Route",
+      "description": "A classic hut-to-hut trek through the dramatic limestone peaks of the Dolomites.",
+      "durationDays": 6,
+      "isActive": true,
+      "cancellationWindowHours": 48,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "destination": {
+        "id": 1,
+        "name": "Dolomites & Northern Italy",
+        "description": "Alpine trails, limestone peaks and mountain refuges.",
+        "city": "Cortina d'Ampezzo",
+        "country": "Italy",
+        "isActive": true,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "dates": [
+        {
+          "id": 1001,
+          "tripId": 101,
+          "startDate": "2026-11-12T00:00:00.000Z",
+          "endDate": "2026-11-17T00:00:00.000Z",
+          "price": 1280,
+          "capacity": 12,
+          "bookedSeats": 9,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 1002,
+          "tripId": 101,
+          "startDate": "2026-12-08T00:00:00.000Z",
+          "endDate": "2026-12-13T00:00:00.000Z",
+          "price": 1390,
+          "capacity": 12,
+          "bookedSeats": 12,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "destinationId": 2,
+      "operatorId": 11,
+      "name": "Patagonia Fitz Roy Glacier Trek",
+      "description": "Explore the glaciers, valleys and granite spires of Los Glaciares National Park.",
+      "durationDays": 8,
+      "isActive": true,
+      "cancellationWindowHours": 72,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "destination": {
+        "id": 2,
+        "name": "Patagonia & Los Glaciares",
+        "description": "Glacier views and rugged trails around Fitz Roy.",
+        "city": "El Chalten",
+        "country": "Argentina",
+        "isActive": true,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "dates": [
+        {
+          "id": 1003,
+          "tripId": 102,
+          "startDate": "2026-11-20T00:00:00.000Z",
+          "endDate": "2026-11-28T00:00:00.000Z",
+          "price": 1450,
+          "capacity": 10,
+          "bookedSeats": 6,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 1004,
+          "tripId": 102,
+          "startDate": "2027-01-10T00:00:00.000Z",
+          "endDate": "2027-01-18T00:00:00.000Z",
+          "price": 1520,
+          "capacity": 10,
+          "bookedSeats": 3,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "destinationId": 3,
+      "operatorId": 12,
+      "name": "Kyoto & Kumano Kodo Pilgrim Trail",
+      "description": "A nine-day walking journey through cedar forests, mountain villages and historic shrines.",
+      "durationDays": 9,
+      "isActive": true,
+      "cancellationWindowHours": 48,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "destination": {
+        "id": 3,
+        "name": "Kyoto & Kumano Kodo",
+        "description": "Forest paths, shrines and historic pilgrim routes.",
+        "city": "Kyoto",
+        "country": "Japan",
+        "isActive": true,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "dates": [
+        {
+          "id": 1005,
+          "tripId": 103,
+          "startDate": "2026-11-24T00:00:00.000Z",
+          "endDate": "2026-12-03T00:00:00.000Z",
+          "price": 1880,
+          "capacity": 12,
+          "bookedSeats": 10,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "destinationId": 4,
+      "operatorId": 12,
+      "name": "Amalfi Coast Cliffside Paths",
+      "description": "Walk scenic coastal paths linking villages above the Amalfi shoreline.",
+      "durationDays": 5,
+      "isActive": true,
+      "cancellationWindowHours": 24,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "destination": {
+        "id": 4,
+        "name": "Amalfi Coast",
+        "description": "Coastal paths above the Mediterranean.",
+        "city": "Amalfi",
+        "country": "Italy",
+        "isActive": true,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "dates": [
+        {
+          "id": 1006,
+          "tripId": 104,
+          "startDate": "2026-11-15T00:00:00.000Z",
+          "endDate": "2026-11-20T00:00:00.000Z",
+          "price": 920,
+          "capacity": 8,
+          "bookedSeats": 2,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 105,
+      "destinationId": 5,
+      "operatorId": 11,
+      "name": "Iceland Highlands & Geysers Expedition",
+      "description": "Cross volcanic highlands, visit geothermal springs and explore Iceland’s dramatic interior.",
+      "durationDays": 7,
+      "isActive": true,
+      "cancellationWindowHours": 72,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "destination": {
+        "id": 5,
+        "name": "Icelandic Highlands & Geysers",
+        "description": "Volcanic valleys, geothermal springs and remote highland trails.",
+        "city": "Landmannalaugar",
+        "country": "Iceland",
+        "isActive": true,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "dates": [
+        {
+          "id": 1010,
+          "tripId": 105,
+          "startDate": "2026-11-18T00:00:00.000Z",
+          "endDate": "2026-11-25T00:00:00.000Z",
+          "price": 1650,
+          "capacity": 10,
+          "bookedSeats": 5,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 1011,
+          "tripId": 105,
+          "startDate": "2027-02-10T00:00:00.000Z",
+          "endDate": "2027-02-17T00:00:00.000Z",
+          "price": 1720,
+          "capacity": 10,
+          "bookedSeats": 10,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 106,
+      "destinationId": 6,
+      "operatorId": 12,
+      "name": "Inca Trail to Machu Picchu",
+      "description": "Follow ancient stone paths through the Andes to the historic mountain citadel.",
+      "durationDays": 6,
+      "isActive": true,
+      "cancellationWindowHours": 72,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "destination": {
+        "id": 6,
+        "name": "Peru & the Sacred Valley",
+        "description": "Andean mountain paths and Inca heritage around Cusco.",
+        "city": "Cusco",
+        "country": "Peru",
+        "isActive": true,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "dates": [
+        {
+          "id": 1012,
+          "tripId": 106,
+          "startDate": "2026-12-05T00:00:00.000Z",
+          "endDate": "2026-12-11T00:00:00.000Z",
+          "price": 2150,
+          "capacity": 12,
+          "bookedSeats": 8,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 1013,
+          "tripId": 106,
+          "startDate": "2027-03-14T00:00:00.000Z",
+          "endDate": "2027-03-20T00:00:00.000Z",
+          "price": 2250,
+          "capacity": 12,
+          "bookedSeats": 4,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 107,
+      "destinationId": 7,
+      "operatorId": 11,
+      "name": "Annapurna Circuit & Thorong La Pass",
+      "description": "A Himalayan journey through mountain villages and high-altitude landscapes.",
+      "durationDays": 12,
+      "isActive": true,
+      "cancellationWindowHours": 96,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "destination": {
+        "id": 7,
+        "name": "Annapurna Circuit",
+        "description": "High mountain passes and Himalayan villages in Nepal.",
+        "city": "Pokhara",
+        "country": "Nepal",
+        "isActive": true,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "dates": [
+        {
+          "id": 1014,
+          "tripId": 107,
+          "startDate": "2026-11-22T00:00:00.000Z",
+          "endDate": "2026-12-04T00:00:00.000Z",
+          "price": 1780,
+          "capacity": 12,
+          "bookedSeats": 7,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 1015,
+          "tripId": 107,
+          "startDate": "2027-04-02T00:00:00.000Z",
+          "endDate": "2027-04-14T00:00:00.000Z",
+          "price": 1840,
+          "capacity": 12,
+          "bookedSeats": 2,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 108,
+      "destinationId": 8,
+      "operatorId": 12,
+      "name": "Atlas Mountains & Berber Villages",
+      "description": "Walk through high valleys and village trails beneath the peaks of the High Atlas.",
+      "durationDays": 6,
+      "isActive": true,
+      "cancellationWindowHours": 48,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "destination": {
+        "id": 8,
+        "name": "Atlas Mountains & Berber Villages",
+        "description": "Mountain paths, valleys and traditional villages in Morocco.",
+        "city": "Marrakech",
+        "country": "Morocco",
+        "isActive": true,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "dates": [
+        {
+          "id": 1016,
+          "tripId": 108,
+          "startDate": "2026-12-12T00:00:00.000Z",
+          "endDate": "2026-12-18T00:00:00.000Z",
+          "price": 1180,
+          "capacity": 10,
+          "bookedSeats": 3,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 1017,
+          "tripId": 108,
+          "startDate": "2027-02-20T00:00:00.000Z",
+          "endDate": "2027-02-26T00:00:00.000Z",
+          "price": 1240,
+          "capacity": 10,
+          "bookedSeats": 10,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 109,
+      "destinationId": 9,
+      "operatorId": 11,
+      "name": "Milford Track & Fiordland",
+      "description": "Trek through rainforest, alpine passes and waterfalls in New Zealand’s Fiordland.",
+      "durationDays": 5,
+      "isActive": true,
+      "cancellationWindowHours": 72,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "destination": {
+        "id": 9,
+        "name": "New Zealand Southern Alps",
+        "description": "Alpine lakes, rainforests and the Milford Track.",
+        "city": "Queenstown",
+        "country": "New Zealand",
+        "isActive": true,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "dates": [
+        {
+          "id": 1018,
+          "tripId": 109,
+          "startDate": "2027-01-08T00:00:00.000Z",
+          "endDate": "2027-01-13T00:00:00.000Z",
+          "price": 2390,
+          "capacity": 8,
+          "bookedSeats": 6,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 1019,
+          "tripId": 109,
+          "startDate": "2027-02-16T00:00:00.000Z",
+          "endDate": "2027-02-21T00:00:00.000Z",
+          "price": 2450,
+          "capacity": 8,
+          "bookedSeats": 1,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 110,
+      "destinationId": 10,
+      "operatorId": 11,
+      "name": "Matterhorn Glacier Trail & Zermatt",
+      "description": "A week of high-alpine trails, glacier viewpoints and mountain scenery.",
+      "durationDays": 7,
+      "isActive": true,
+      "cancellationWindowHours": 48,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "destination": {
+        "id": 10,
+        "name": "Swiss Alps & Matterhorn",
+        "description": "Glacier viewpoints and classic trails around Zermatt.",
+        "city": "Zermatt",
+        "country": "Switzerland",
+        "isActive": true,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      },
+      "dates": [
+        {
+          "id": 1020,
+          "tripId": 110,
+          "startDate": "2027-01-20T00:00:00.000Z",
+          "endDate": "2027-01-27T00:00:00.000Z",
+          "price": 1620,
+          "capacity": 10,
+          "bookedSeats": 8,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 1021,
+          "tripId": 110,
+          "startDate": "2027-03-08T00:00:00.000Z",
+          "endDate": "2027-03-15T00:00:00.000Z",
+          "price": 1690,
+          "capacity": 10,
+          "bookedSeats": 3,
+          "isActive": true,
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    }
+  ]
+}
