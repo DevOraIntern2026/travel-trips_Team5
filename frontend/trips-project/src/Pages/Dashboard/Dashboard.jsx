@@ -69,10 +69,10 @@ export default function Dashboard() {
     return (
         <div className="db-shell">
             <aside className="db-sidebar">
-                <div className="db-brand">
+                <Link to="/" className="db-brand" title="Return to Home" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <span className="db-logo">T</span>
                     <span><b>TravelOra</b><small>OPERATOR WORKSPACE</small></span>
-                </div>
+                </Link>
                 <nav>
                     {NAV.map(({ label, icon: Icon, active, to }) => (
                         <Link key={label} to={to} className={active ? "db-nav is-active" : "db-nav"}>

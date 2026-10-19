@@ -99,7 +99,10 @@ export default function DatesAvailability() {
     return (
         <div className="da-shell">
             <aside className="da-sidebar">
-                <div className="da-brand"><span className="da-logo">T</span><span><b>TravelOra</b><small>OPERATOR WORKSPACE</small></span></div>
+                <Link to="/" className="da-brand" title="Return to Home" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <span className="da-logo">T</span>
+                    <span><b>TravelOra</b><small>OPERATOR WORKSPACE</small></span>
+                </Link>
                 <nav>{NAV.map(({ label, icon: Icon, active, to }) => (
                     <Link key={label} to={to} className={active ? "da-nav is-active" : "da-nav"}><Icon size={18} /> {label}</Link>
                 ))}</nav>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import "./AdminLayout.css";
 
 export const BASE = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";

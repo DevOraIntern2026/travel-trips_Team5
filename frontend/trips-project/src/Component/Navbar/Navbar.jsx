@@ -5,19 +5,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppContext } from "../../Context/AppContext";
 
 const links = [
-  { name: "ExploreExpeditions", path: "/explore-expeditions" },
-  { name: "Destinations", path: "#" },
+  { name: "Explore Expeditions", path: "/home/expedition" },
+  { name: "Destinations", path: "/destinations" },
+  { name: "My Bookings", path: "/bookings" },
   { name: "How It Works", path: "/how-it-works" },
   { name: "About", path: "/about" },
-  { name: "MyBooking", path: "/my-booking" },
-  { name: "ExpeditionDiscovery", path: "/home/expedition" },
   { name: "Dashboard", path: "/dashboard" },
 ];
 
 export default function NavLinkbar() {
   const [currency, setCurrency] = useState("USD");
-  const {isLoggedIn, setIsLoggedIn} = useAppContext(); // Access the context value
-  const {user, setUser} = useAppContext(); // Access the context value
+  const { isLoggedIn, setIsLoggedIn, setUser } = useAppContext();
   const navigate = useNavigate();
  async function handleLogout() {
 
@@ -118,10 +116,14 @@ export default function NavLinkbar() {
           )}
           
           
-          {/* User */}
-          <button className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-btn text-brand">
+          {/* User Profile */}
+          <Link
+            to="/profile"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-btn text-brand hover:opacity-85 transition"
+            title="Operator Workspace Profile"
+          >
             <User size={16} />
-          </button>
+          </Link>
 
         </div>
 

@@ -95,7 +95,10 @@ export default function EditTrip() {
     return (
         <div className="et-shell">
             <aside className="et-sidebar">
-                <div className="et-brand"><span className="et-logo">T</span><span><b>TravelOra</b><small>OPERATOR WORKSPACE</small></span></div>
+                <Link to="/" className="et-brand" title="Return to Home" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <span className="et-logo">T</span>
+                    <span><b>TravelOra</b><small>OPERATOR WORKSPACE</small></span>
+                </Link>
                 <nav>{NAV.map(({ label, icon: Icon, active, to }) => (
                     <Link key={label} to={to} className={active ? "et-nav is-active" : "et-nav"}><Icon size={18} /> {label}</Link>
                 ))}</nav>

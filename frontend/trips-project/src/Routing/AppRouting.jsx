@@ -17,48 +17,62 @@ import GuestRoute from "../GuestRoute/GuestRoute";
 import AdminDashboard from "../Pages/AdminDashboard/AdminDashboard";
 import AdminUsers from "../Pages/AdminDashboard/AdminUsers";
 import AdminTrips from "../Pages/AdminDashboard/AdminTrips";
+import Bookings from "../Pages/Booking/Bookings";
+import Profile from "../Pages/Profile/Profile";
+import Destination from "../Pages/Destination/Destination";
 
 export const router = createBrowserRouter([
- {
-  element:<MainLayout/>,
-children :[
-{
-path: "/",
-element: <Home />,
-},
-{
-path: "/home/expedition",
-element: <ExpeditionDiscovery/>,
-},
-{
-path: "/dashboard",
-element: <Dashboard/>,
-},
-{
-path: "/admin",
-element: <AdminDashboard/>,
-},
-{
-path: "/admin/users",
-element: <AdminUsers/>,
-},
-{
-path: "/admin/trips",
-element: <AdminTrips/>,
-},
-{
-path: "/trips/edit",
-element: <EditTrip/>,
-},
-{
-path: "/trips/dates",
-element: <DatesAvailability/>,
-},
-
-{
-path: "/about",
-element: <About />,
-},
+  {
+    path: "/bookings",
+    element: <Bookings />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
+    path: "/trips/edit",
+    element: <EditTrip />,
+  },
+  {
+    path: "/trips/dates",
+    element: <DatesAvailability />,
+  },
+  {
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/home/expedition",
+        element: <ExpeditionDiscovery />,
+      },
+      {
+        path: "/destinations",
+        element: <Destination />,
+      },
+      {
+        path: "/admin",
+        element: <AdminDashboard />,
+      },
+      {
+        path: "/admin/users",
+        element: <AdminUsers />,
+      },
+      {
+        path: "/admin/trips",
+        element: <AdminTrips />,
+      },
+      {
+        path: "/about",
+        element: <About />,
+      },
 {
 path: "/explore-expeditions",
 element: <ExploreExpeditions/>,
