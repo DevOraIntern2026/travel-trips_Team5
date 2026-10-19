@@ -61,6 +61,9 @@ const GUIDES = [
 
 export default function Dashboard() {
   console.log("Dashboard rendered");
+  // #region agent log
+  fetch('http://127.0.0.1:7940/ingest/438fa240-d876-4130-8fe5-cb8f36bf1e89',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'377b2a'},body:JSON.stringify({sessionId:'377b2a',runId:'pre-fix',hypothesisId:'C',location:'Dashboard.jsx:render',message:'Dashboard NAV targets',data:{nav:NAV.map((n)=>({label:n.label,to:n.to}))},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 
     const [tab, setTab] = useState("all");
     const rows = BOOKINGS.filter((b) => tab === "all" || b.status === tab);
